@@ -575,7 +575,7 @@ def readCommand(argv):
         options.numQuiet = int(agentOpts['numTrain'])
         options.numIgnore = int(agentOpts['numTrain'])
 
-    # CPSC 481 conditional changed...
+    # CPSC 481 - We now have individually configurable ghost behaviors when "-o" is specified on command line :D
     if options.originalGhosts is True:
         blinky = loadAgent('Blinky', noKeyboard)
         pinky = loadAgent('Pinky', noKeyboard)
@@ -584,7 +584,6 @@ def readCommand(argv):
         args['ghosts'] = [blinky(1), pinky(2), inky(3), clyde(4)]
     else:
         ghostType = loadAgent(options.ghost, noKeyboard)
-        print(ghostType)
         args['ghosts'] = [ghostType(i + 1) for i in range(options.numGhosts)]
 
     # Choose a display format
