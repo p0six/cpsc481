@@ -228,7 +228,7 @@ def manhattanDistance( xy1, xy2 ):
     return abs( xy1[0] - xy2[0] ) + abs( xy1[1] - xy2[1] )
 
 
-def euclideanDistance( xy1, xy2):
+def euclideanDistance( xy1, xy2 ):
     "The Euclidean distance heuristic for a PositionSearchProblem"
     return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
 
