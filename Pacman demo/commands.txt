@@ -30,5 +30,6 @@ python pacman.py -o
 python pacman.py -p GreedyAgent -q -r -n 10 -o
 
 # file:///Users/mromero/PyCharmProjects/CS188.1x-Project2/multiagentProject.html
+# https://inst.eecs.berkeley.edu/~cs188/sp12/projects/multiagent/multiagentProject.html
 
 # pacmanPosition = state.getPacmanPosition()
