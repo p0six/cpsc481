@@ -32,6 +32,9 @@ SCORE_COLOR = formatColor(.9, .9, .9)
 PACMAN_OUTLINE_WIDTH = 2
 PACMAN_CAPTURE_OUTLINE_WIDTH = 4
 
+########################################################################################################################
+# CPSC 481 - Modified colors of ghosts to more closely match the original PacMan ghosts..
+########################################################################################################################
 GHOST_COLORS = []
 GHOST_COLORS.append(formatColor(.82,.01,.001)) # Red / Blinky
 GHOST_COLORS.append(formatColor(.82,.01,.001)) # Red / Blinky
@@ -39,6 +42,7 @@ GHOST_COLORS.append(formatColor(.92,.51,.9)) # Pink / Pinky
 GHOST_COLORS.append(formatColor(.274,.749,.933)) # Cyan / Inky
 GHOST_COLORS.append(formatColor(.858,.522,.11)) # Orange / Clyde
 GHOST_COLORS.append(formatColor(.4,0.13,0.91)) # Purple
+########################################################################################################################
 
 TEAM_COLORS = GHOST_COLORS[:2]
 
@@ -566,11 +570,11 @@ class PacmanGraphics:
         Draws an overlay of expanded grid positions for search agents
         """
         n = float(len(cells))
-        baseColor = [1.0, 0.0, 0.0]
+        baseColor = [1.0, 0.5, 0.8]
         self.clearExpandedCells()
         self.expandedCells = []
         for k, cell in enumerate(cells):
-            screenPos = self.to_screen( cell)
+            screenPos = self.to_screen(cell)
             cellColor = formatColor(*[(n-k) * c * .5 / n + .25 for c in baseColor])
             block = square(screenPos,
                      0.5 * self.gridSize,

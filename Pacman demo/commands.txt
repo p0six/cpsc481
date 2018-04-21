@@ -21,15 +21,13 @@ python pacman.py -l trickySearch -p AStarFoodSearchAgent
 python pacman.py -l bigSearch -p ClosestDotSearchAgent -z .5 
 python pacman.py -l bigSearch -p ApproximateSearchAgent -z .5 -q
 
-
-# our shit
+########################################################################################################################
+# CPSC 481 - Commands that initialize our Ghosts...
+########################################################################################################################
+# Trigger our Ghost Agents... Blinky / Pinky / Inky / Clyde, using the pacmanClassic map we created.
 python pacman.py -l pacmanClassic -o
-python pacman.py -o
-
-# run 10 games, with PacMan's GreedyAgent, quietly, record output that can be later replayed.... against our ghosts :D
+########################################################################################################################
+# An example of the astar search algo with manhattanHeuristic
+python pacman.py -l pacmanClassic -a fn=astar,heuristic=manhattanHeuristic
+# Run 10 games, with PacMan's GreedyAgent, quietly, record output that can be later replayed.... against our ghosts :D
 python pacman.py -p GreedyAgent -q -r -n 10 -o
-
-# file:///Users/mromero/PyCharmProjects/CS188.1x-Project2/multiagentProject.html
-# https://inst.eecs.berkeley.edu/~cs188/sp12/projects/multiagent/multiagentProject.html
-
-# pacmanPosition = state.getPacmanPosition()

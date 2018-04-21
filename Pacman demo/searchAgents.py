@@ -81,12 +81,6 @@ class SearchAgent(Agent):
         if fn not in dir(search):
             raise AttributeError, fn + ' is not a search function in search.py.'
         func = getattr(search, fn)
-        print 'func is this: '
-        print func
-        print 'search is this: '
-        print search
-        print 'fn is this: '
-        print fn
         if 'heuristic' not in func.func_code.co_varnames:
             print('[SearchAgent] using function ' + fn)
             self.searchFunction = func
@@ -105,10 +99,6 @@ class SearchAgent(Agent):
         if prob not in globals().keys() or not prob.endswith('Problem'):
             raise AttributeError, prob + ' is not a search problem type in SearchAgents.py.'
         self.searchType = globals()[prob]
-        # print 'lalala'
-        # print prob
-        # print 'hahaha'
-        # print self.searchType
         print('[SearchAgent] using problem type ' + prob)
 
     def registerInitialState(self, state):
@@ -368,7 +358,6 @@ class CornersProblem(search.SearchProblem):
                 successors.append( ( nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
-        # print successors
         return successors
 
     def getCostOfActions(self, actions):
@@ -629,101 +618,6 @@ class AnyFoodSearchProblem(PositionSearchProblem):
                 return True
 
 
-
-class PositionSearchProblemGhost(search.SearchProblem):
-    """
-    A search problem defines the state space, start state, goal test, successor
-    function and cost function.  This search problem can be used to find paths
-    to a particular point on the pacman board.
-
-    The state space consists of (x,y) positions in a pacman game.
-
-    Note: this search problem is fully specified; you should NOT change it.
-    """
-
-    def __init__(self, gameState, costFn = lambda x: 1, goal=(1,1), start=None, warn=True, visualize=True, color=None):
-        """
-        Stores the start and goal.
-
-        gameState: A GameState object (pacman.py)
-        costFn: A function from a search state (tuple) to a non-negative number
-        goal: A position in the gameState
-        """
-        self.walls = gameState.getWalls()
-        self.startState = gameState.getPacmanPosition()
-        if start != None: self.startState = start
-        self.goal = goal
-        self.costFn = costFn
-        self.visualize = visualize
-        if warn and (gameState.getNumFood() != 1 or not gameState.hasFood(*goal)):
-            print 'Warning: this does not look like a regular search maze'
-
-        # For display purposes
-        self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
-
-    def getStartState(self):
-        return self.startState
-
-    def isGoalState(self, state):
-        isGoal = state == self.goal
-
-        # For display purposes only
-        if isGoal and self.visualize:
-            self._visitedlist.append(state)
-            import __main__
-            if '_display' in dir(__main__):
-                if 'drawExpandedCells' in dir(__main__._display): #@UndefinedVariable
-                    __main__._display.drawExpandedCells(self._visitedlist) #@UndefinedVariable
-
-        return isGoal
-
-    def getSuccessors(self, state):
-        """
-        Returns successor states, the actions they require, and a cost of 1.
-
-         As noted in search.py:
-             For a given state, this should return a list of triples,
-         (successor, action, stepCost), where 'successor' is a
-         successor to the current state, 'action' is the action
-         required to get there, and 'stepCost' is the incremental
-         cost of expanding to that successor
-        """
-
-        successors = []
-        for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x,y = state
-            dx, dy = Actions.directionToVector(action)
-            nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
-                cost = self.costFn(nextState)
-                successors.append( ( nextState, action, cost) )
-
-        # Bookkeeping for display purposes
-        self._expanded += 1 # DO NOT CHANGE
-        if state not in self._visited:
-            self._visited[state] = True
-            self._visitedlist.append(state)
-
-        return successors
-
-    def getCostOfActions(self, actions):
-        """
-        Returns the cost of a particular sequence of actions. If those actions
-        include an illegal move, return 999999.
-        """
-        if actions == None: return 999999
-        x,y= self.getStartState()
-        cost = 0
-        for action in actions:
-            # Check figure out the next state and see whether its' legal
-            dx, dy = Actions.directionToVector(action)
-            x, y = int(x + dx), int(y + dy)
-            if self.walls[x][y]: return 999999
-            cost += self.costFn((x,y))
-        return cost
-
-
 def mazeDistance(point1, point2, gameState):
     """
     Returns the maze distance between any two points, using the search functions
@@ -742,8 +636,9 @@ def mazeDistance(point1, point2, gameState):
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return len(search.bfs(prob))
 
-
-# CPSC 481 - Provides us with a list of directions we use within our ghostAgents.py
+############################################################################################################
+# CPSC 481 - mazeDirections Provides a list of directions used within ghostAgents.py to draw path to target
+############################################################################################################
 def mazeDirections(point1, point2, gameState):
     x1, y1 = point1
     x2, y2 = point2
@@ -752,3 +647,4 @@ def mazeDirections(point1, point2, gameState):
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return search.bfs(prob)
+############################################################################################################

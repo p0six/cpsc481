@@ -16,16 +16,17 @@ from game import Agent
 from game import Actions
 from game import Directions
 import random
-import sys
 from util import manhattanDistance
-from util import euclideanDistance
 import util
+
+########################################################
+# Imports specific to CPSC 481 project
+import sys
 import pacman
-
-# CPSC 481
 from searchAgents import mazeDirections, mazeDistance
+from util import euclideanDistance
+########################################################
 
-# import graphic shit
 class GhostAgent( Agent ):
     def __init__( self, index ):
         self.index = index
@@ -89,9 +90,11 @@ class DirectionalGhost( GhostAgent ):
         dist.normalize()
         return dist
 
-
+##################################################
+# CPSC 481 - Blinky, Pinky, Inky, and Clyder
+##################################################
 class Blinky(GhostAgent):
-    "A ghost that attempts to behave similarly to Blinky"
+    # Blinky always targets PacMan's position, currently using BFS
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8):
         self.index = index
         self.prob_attack = prob_attack
@@ -99,7 +102,6 @@ class Blinky(GhostAgent):
 
     def getDistribution(self, state):
         # Read variables from state
-
         ghostState = state.getGhostState( self.index )
         legalActions = state.getLegalActions( self.index )
         pos = state.getGhostPosition( self.index )
@@ -113,8 +115,9 @@ class Blinky(GhostAgent):
         pacmanPosition = state.getPacmanPosition()
 
         pos_x, pos_y = pos
-        intpos = (int(pos_x), int(pos_y))
+        intpos = (int(pos_x), int(pos_y))  # pos returns floats, but we need ints.
 
+        # returns a list of directions like... North, South, South, East, etc..
         direction_list = mazeDirections(intpos, pacmanPosition, state)
 
         # Select best action for Pinky given the state
@@ -129,21 +132,23 @@ class Blinky(GhostAgent):
             for a in bestActions: dist[a] = bestProb / len(bestActions)
             for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         else:
-            if direction_list[0] in legalActions:
+            if direction_list[0] in legalActions:  # action is legal.. proceed
                 dist[direction_list[0]] = 1
-            else:
-                successor = Actions.getSuccessor(intpos, legalActions[0])
+            else:  # select the first action from list of legal actions, update direction list to indicate new path
+                successor = Actions.getSuccessor(intpos, legalActions[0])  # an (x,y) tuple representing new location
                 pos_x, pos_y = successor
                 intpos = (int(pos_x), int(pos_y))
                 direction_list = mazeDirections(intpos, pacmanPosition, state)
                 dist[legalActions[0]] = 1
 
+        # cell_list is the list of directions converted into grid coordinates for use with our draw function..
         cell_list = []
         for direction in direction_list:
             successor = Actions.getSuccessor(intpos, direction)
             cell_list.append(successor)
             intpos = successor
 
+        # This draws the path our ghost is planning on taking to get to his target..
         import __main__
         if '_display' in dir(__main__):
             if 'drawExpandedCells' in dir(__main__._display):
@@ -152,7 +157,7 @@ class Blinky(GhostAgent):
         return dist
 
 class Pinky( GhostAgent ):
-    "A ghost that behaves similarly to Pinky"
+    # Pinky not yet complete.  Will be a modified Blinky which targets 4 positions ahead of PacMan's current vector.
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
         self.index = index
         self.prob_attack = prob_attack
@@ -207,7 +212,7 @@ class Pinky( GhostAgent ):
 
 
 class Inky ( GhostAgent ):
-    "A ghost that behaves similarly to Inky"
+    # Inky not yet complete.  Will be a modified Blinky which targets 8 positions ahead of PacMan's current vector.
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
         self.index = index
         self.prob_attack = prob_attack
@@ -245,7 +250,9 @@ class Inky ( GhostAgent ):
         return dist
 
 class Clyde( GhostAgent ):
-    "A ghost that behaves similarly to Clyde"
+    # Clye not yet complete.  Will be a modified Blinky which targets PacMan's position until it is within 8 blocks away
+    # at which point it will retreat to the corner until it is no longer 8 blocks from PacMan, at which point it
+    # immediately begins chasing PacMan again.
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
         self.index = index
         self.prob_attack = prob_attack
@@ -281,4 +288,5 @@ class Clyde( GhostAgent ):
         for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
         dist.normalize()
         return dist
+##################################################
 
