@@ -91,7 +91,7 @@ class DirectionalGhost( GhostAgent ):
         return dist
 
 ##################################################
-# CPSC 481 - Blinky, Pinky, Inky, and Clyder
+# CPSC 481 - Blinky, Pinky, Inky, and Clyde
 ##################################################
 class Blinky(GhostAgent):
     # Blinky always targets PacMan's position, currently using BFS
@@ -120,7 +120,7 @@ class Blinky(GhostAgent):
         # returns a list of directions like... North, South, South, East, etc..
         direction_list = mazeDirections(intpos, pacmanPosition, state)
 
-        # Select best action for Pinky given the state
+        # Select best action for Blinky given the state
         distancesToPacman = [euclideanDistance (pos, pacmanPosition) for pos in newPositions ]
         dist = util.Counter()
         if isScared:
@@ -157,7 +157,7 @@ class Blinky(GhostAgent):
         return dist
 
 class Pinky( GhostAgent ):
-    # Pinky not yet complete.  Will be a modified Blinky which targets 4 positions ahead of PacMan's current vector.
+    # Pinky not yet complete.  Will be a modified Blinky which targets 4 legal positions ahead of PacMan's current vector.
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
         self.index = index
         self.prob_attack = prob_attack
@@ -184,7 +184,6 @@ class Pinky( GhostAgent ):
         pacman_position = state.getPacmanPosition()
         # print(pacman_position)
 
-        # THIS IS THE SHIT!!
         # print(state)
 
         # Select best action for Pinky given the state
@@ -212,7 +211,7 @@ class Pinky( GhostAgent ):
 
 
 class Inky ( GhostAgent ):
-    # Inky not yet complete.  Will be a modified Blinky which targets 8 positions ahead of PacMan's current vector.
+    # Inky not yet complete. Inky needs Pac-Man's current tile/orientation and Blinky's current tile to calculate his final target.
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
         self.index = index
         self.prob_attack = prob_attack
@@ -232,7 +231,7 @@ class Inky ( GhostAgent ):
         newPositions = [( pos[0]+a[0], pos[1]+a[1] ) for a in actionVectors]
         pacmanPosition = state.getPacmanPosition()
 
-        # Select best actionf or Pinky given the state
+        # Select best action or Pinky given the state
         distancesToPacman = [euclideanDistance ( pos, pacmanPosition ) for pos in newPositions ]
         if isScared:
             bestScore = max( distancesToPacman )
@@ -250,7 +249,7 @@ class Inky ( GhostAgent ):
         return dist
 
 class Clyde( GhostAgent ):
-    # Clye not yet complete.  Will be a modified Blinky which targets PacMan's position until it is within 8 blocks away
+    # Cldye not yet complete.  Will be a modified Blinky which targets PacMan's position until it is within 8 blocks away
     # at which point it will retreat to the corner until it is no longer 8 blocks from PacMan, at which point it
     # immediately begins chasing PacMan again.
     def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8 ):
