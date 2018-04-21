@@ -117,17 +117,6 @@ class Blinky(GhostAgent):
 
         direction_list = mazeDirections(intpos, pacmanPosition, state)
 
-        cell_list = []
-        for direction in direction_list:
-            successor = Actions.getSuccessor(intpos, direction)
-            cell_list.append(successor)
-            intpos = successor
-
-        import __main__
-        if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display):
-                __main__._display.drawExpandedCells(cell_list)
-
         # Select best action for Pinky given the state
         distancesToPacman = [euclideanDistance (pos, pacmanPosition) for pos in newPositions ]
         dist = util.Counter()
@@ -139,13 +128,28 @@ class Blinky(GhostAgent):
             # Construct distribution
             for a in bestActions: dist[a] = bestProb / len(bestActions)
             for a in legalActions: dist[a] += ( 1-bestProb ) / len(legalActions)
-            dist.normalize()
-            return dist
         else:
-            dist[direction_list[0]] = 1
-            dist.normalize()
-            return dist
+            if direction_list[0] in legalActions:
+                dist[direction_list[0]] = 1
+            else:
+                successor = Actions.getSuccessor(intpos, legalActions[0])
+                pos_x, pos_y = successor
+                intpos = (int(pos_x), int(pos_y))
+                direction_list = mazeDirections(intpos, pacmanPosition, state)
+                dist[legalActions[0]] = 1
 
+        cell_list = []
+        for direction in direction_list:
+            successor = Actions.getSuccessor(intpos, direction)
+            cell_list.append(successor)
+            intpos = successor
+
+        import __main__
+        if '_display' in dir(__main__):
+            if 'drawExpandedCells' in dir(__main__._display):
+                __main__._display.drawExpandedCells(cell_list)
+        dist.normalize()
+        return dist
 
 class Pinky( GhostAgent ):
     "A ghost that behaves similarly to Pinky"
