@@ -242,9 +242,9 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-###################################################################################################
-# CPSC 481 - Copy of aStarSearch() which helps us avoid results that violate Ghost movement rules
-###################################################################################################
+##########################################################################################
+# CPSC 481 - Copy of aStarSearch() that eliminates paths that cause ghost to go in reverse
+##########################################################################################
 def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first, as a ghost."""
 
@@ -262,18 +262,11 @@ def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
     def traverse_path(parent_node):
         temp = 0
         while True:
-            '''print parent_node'''
             map_row = parent_child_map[parent_node]
-            if (len(map_row) == 4):
+            if (len(map_row) == 4):  # map_row[parent_node, direction, gvalue, fvalue]
                 parent_node = map_row[0]
                 direction = map_row[1]
-                gvalue = map_row[2]
-                fvalue = map_row[3]
                 direction_list.append(direction)
-                '''print "Gvalue = %d" % gvalue
-                print fvalue'''
-                '''print "Hueristic = %d" % (fvalue-gvalue)'''
-                '''print "Admissible H = %d" % temp'''
                 temp = temp + 1
             else:
                 break

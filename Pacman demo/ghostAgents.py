@@ -126,7 +126,10 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
         if (float(pos_x)).is_integer() is False or (float(pos_y)).is_integer() is False:
             dist[ghostDirection] = 1  # If Ghost is in between tiles, continue previous direction
         else:
-            dist[direction_list[0]] = 1
+            if len(direction_list) == 0:
+                dist[state.getLegalActions(self.index)[0]] = 1
+            else:
+                dist[direction_list[0]] = 1
 
         cell_list = []  # cell_list is the list of directions converted into coordinates we use to draw path
         for direction in direction_list:
