@@ -566,6 +566,8 @@ def readCommand( argv ):
         inky = loadAgent('Inky', noKeyboard)
         clyde = loadAgent('Clyde', noKeyboard)
         args['ghosts'] = [blinky(1), pinky(2), inky(3), clyde(4)]
+        # blinky = loadAgent('Blinky', noKeyboard)
+        # args['ghosts'] = [blinky(1)]
     else:
         # Choose a ghost agent
         ghostType = loadAgent(options.ghost, noKeyboard)

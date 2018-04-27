@@ -42,6 +42,9 @@ from search import breadthFirstSearch
 import time
 import search
 
+# CPSC 481 - Imports..
+from pacman import GhostRules
+
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
 
@@ -164,7 +167,7 @@ class PositionSearchProblem(search.SearchProblem):
             print 'Warning: this does not look like a regular search maze'
 
         # For display purposes
-        self._visited, self._visitedlist, self._expanded = {}, [], 0 # DO NOT CHANGE
+        self._visited, self._visitedlist, self._expanded = {}, [], 0  # DO NOT CHANGE
 
     def getStartState(self):
         return self.startState
@@ -205,7 +208,7 @@ class PositionSearchProblem(search.SearchProblem):
                 successors.append( ( nextState, action, cost) )
 
         # Bookkeeping for display purposes
-        self._expanded += 1 # DO NOT CHANGE
+        self._expanded += 1  # DO NOT CHANGE
         if state not in self._visited:
             self._visited[state] = True
             self._visitedlist.append(state)
@@ -227,6 +230,7 @@ class PositionSearchProblem(search.SearchProblem):
             if self.walls[x][y]: return 999999
             cost += self.costFn((x,y))
         return cost
+
 
 class StayEastSearchAgent(SearchAgent):
     """
@@ -251,6 +255,30 @@ class StayWestSearchAgent(SearchAgent):
         self.searchFunction = search.uniformCostSearch
         costFn = lambda pos: 2 ** pos[0]
         self.searchType = lambda state: PositionSearchProblem(state, costFn)
+
+#################################################################################
+# CPSC 481
+#################################################################################
+def manhattanHeuristicGhost(position, problem, reverse, start_node, parent_node, info={}):
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    xy1 = position
+    xy2 = problem.goal
+    # if start_node == parent_node:
+    #   print('start_node is parent_node')
+    # determine if xy1 to xy2 goes in the direction of reverse... return a very high value if so...
+    # vector = Actions.directionToVector(reverse)
+    # dx, dy = vector
+    # direction = Actions.vectorToDirection(parent_node)
+    # if direction == reverse:
+    #     print 'manhattanHeuristicGhost:  direction is reverse!'
+    #     print 'manhattanHeuristicGhost - vector is: '
+    #     # print vector
+    #     return 9999999999
+    #     # return 0
+    # else:
+    #     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
 
 def manhattanHeuristic(position, problem, info={}):
     "The Manhattan distance heuristic for a PositionSearchProblem"
@@ -636,15 +664,17 @@ def mazeDistance(point1, point2, gameState):
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
     return len(search.bfs(prob))
 
+
 ############################################################################################################
 # CPSC 481 - mazeDirections Provides a list of directions used within ghostAgents.py to draw path to target
 ############################################################################################################
-def mazeDirections(point1, point2, gameState):
+def mazeDirections(point1, point2, gameState, index):
+    reverse = Actions.reverseDirection(gameState.getGhostState(index).configuration.direction)
     x1, y1 = point1
     x2, y2 = point2
     walls = gameState.getWalls()
     assert not walls[x1][y1], 'point1 is a wall: ' + str(point1)
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
-    return search.bfs(prob)
+    return search.aStarSearchGhost(prob, reverse, manhattanHeuristicGhost)
 ############################################################################################################
