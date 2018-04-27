@@ -246,7 +246,7 @@ def nullHeuristic(state, problem=None):
 # CPSC 481 - Copy of aStarSearch() which helps us avoid results that violate Ghost movement rules
 ###################################################################################################
 def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
+    """Search the node that has the lowest combined cost and heuristic first, as a ghost."""
 
     loc_pqueue = PriorityQueue()
     visited_node = {}
@@ -301,20 +301,17 @@ def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
                     child_nodes = sucessor_list[temp]
                     child_state = child_nodes[0];
                     child_action = child_nodes[1];
-                    ##############################################################################
-                    # CPSC 481 - make cost of illegal move very high so it doesn't go that way..
-                    ##############################################################################
+
+                    ######################################################################
+                    # CPSC 481 - make cost of illegal move very high so it's never chosen
+                    ######################################################################
                     if child_action == reverse and parent_node == start_node:
                         child_cost = 99999999999999
                     else:
                         child_cost = child_nodes[2];
-                    # child_cost = child_nodes[2];
-                    ##############################################################################
-                    # CPSC 481 - this may be unnecessary due to us making cost very high...
-                    heuristic_value = heuristic(child_state, problem, reverse, start_node, parent_node)
-                    # heuristic_value = heuristic(child_state, problem)
-                    ##############################################################################
+                    ######################################################################
 
+                    heuristic_value = heuristic(child_state, problem)
                     gvalue = path_cost + child_cost
                     fvalue = gvalue + heuristic_value
 
