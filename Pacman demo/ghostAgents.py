@@ -100,7 +100,6 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
     def __init__(self, index):
         self.index = index
         self.color = [0.82, 0.01, 0.001]  # Red
-        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
         self.isColorSet = False
 
     def getDistribution(self, state):
@@ -139,7 +138,7 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
         import __main__
         if '_display' in dir(__main__):
             if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
-                __main__._display.setGhostColor(self.index, self.formattedColor)
+                __main__._display.setGhostColor(self.index, formatColor(self.color[0], self.color[1], self.color[2]))
                 self.isColorSet = True
             if 'drawGhostPath' in dir(__main__._display):
                 __main__._display.drawGhostPath(cell_list, self.color)
