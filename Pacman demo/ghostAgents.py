@@ -26,6 +26,7 @@ import sys
 import pacman
 from searchAgents import mazeDirections, mazeDistance
 from util import euclideanDistance
+from graphicsUtils import formatColor
 ########################################################
 
 class GhostAgent( Agent ):
@@ -100,6 +101,9 @@ class Blinky(GhostAgent):
         self.index = index
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
+        self.color = [0.82, 0.01, 0.001]  # Red
+        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
+        self.isColorSet = False
 
     def getDistribution(self, state):
         ghostState = state.getGhostState(self.index)
@@ -136,8 +140,11 @@ class Blinky(GhostAgent):
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
         if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display):
-                __main__._display.drawExpandedCells(cell_list)
+            if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
+                __main__._display.setGhostColor(self.index, self.formattedColor)
+                self.isColorSet = True
+            if 'drawGhostPath' in dir(__main__._display):
+                __main__._display.drawGhostPath(cell_list, self.color)
         dist.normalize()
         return dist
 
@@ -148,6 +155,9 @@ class Pinky(GhostAgent):
         self.index = index
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
+        self.color = [.92, .51, .9]  # Pink
+        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
+        self.isColorSet = False
 
     def getDistribution(self, state):
         # Read variables from state
@@ -215,9 +225,11 @@ class Pinky(GhostAgent):
 
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
-        if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display):
-                __main__._display.drawExpandedCells(cell_list)
+        if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
+            __main__._display.setGhostColor(self.index, self.formattedColor)
+            self.isColorSet = True
+        if 'drawGhostPath' in dir(__main__._display):
+            __main__._display.drawGhostPath(cell_list, self.color)
         dist.normalize()
         return dist
 
@@ -228,6 +240,9 @@ class Inky(GhostAgent):
         self.index = index
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
+        self.color = [.274, .749, .933]  # Cyan
+        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
+        self.isColorSet = False
 
     def getDistribution(self, state):
         # Read variables from state
@@ -329,9 +344,11 @@ class Inky(GhostAgent):
 
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
-        if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display):
-                __main__._display.drawExpandedCells(cell_list)
+        if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
+            __main__._display.setGhostColor(self.index, self.formattedColor)
+            self.isColorSet = True
+        if 'drawGhostPath' in dir(__main__._display):
+            __main__._display.drawGhostPath(cell_list, self.color)
         dist.normalize()
         return dist
 
@@ -344,6 +361,9 @@ class Clyde( GhostAgent ):
         self.index = index
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
+        self.color = [.858, .522, .11]  # Orange
+        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
+        self.isColorSet = False
 
     def getDistribution(self, state):
         # Read variables from state
@@ -401,9 +421,11 @@ class Clyde( GhostAgent ):
 
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
-        if '_display' in dir(__main__):
-            if 'drawExpandedCells' in dir(__main__._display):
-                __main__._display.drawExpandedCells(cell_list)
+        if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
+            __main__._display.setGhostColor(self.index, self.formattedColor)
+            self.isColorSet = True
+        if 'drawGhostPath' in dir(__main__._display):
+            __main__._display.drawGhostPath(cell_list, self.color)
         dist.normalize()
         return dist
 ##################################################

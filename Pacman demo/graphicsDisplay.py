@@ -36,12 +36,12 @@ PACMAN_CAPTURE_OUTLINE_WIDTH = 4
 # CPSC 481 - Modified colors of ghosts to more closely match the original PacMan ghosts..
 ########################################################################################################################
 GHOST_COLORS = []
-GHOST_COLORS.append(formatColor(.82,.01,.001)) # Red / Blinky
-GHOST_COLORS.append(formatColor(.82,.01,.001)) # Red / Blinky
-GHOST_COLORS.append(formatColor(.92,.51,.9)) # Pink / Pinky
-GHOST_COLORS.append(formatColor(.274,.749,.933)) # Cyan / Inky
-GHOST_COLORS.append(formatColor(.858,.522,.11)) # Orange / Clyde
-GHOST_COLORS.append(formatColor(.4,0.13,0.91)) # Purple
+GHOST_COLORS.append(formatColor(.82,.01,.001))  # Red / Blinky <-- this value actually never used...
+GHOST_COLORS.append(formatColor(.82,.01,.001))  # Red / Blinky
+GHOST_COLORS.append(formatColor(.92,.51,.9))  # Pink / Pinky
+GHOST_COLORS.append(formatColor(.274,.749,.933))  # Cyan / Inky
+GHOST_COLORS.append(formatColor(.858,.522,.11))  # Orange / Clyde
+GHOST_COLORS.append(formatColor(.4,0.13,0.91))  # Purple
 ########################################################################################################################
 
 TEAM_COLORS = GHOST_COLORS[:2]
@@ -166,6 +166,11 @@ class PacmanGraphics:
         self.capture = capture
         self.frameTime = frameTime
 
+        ##################################################
+        # CPSC 481 - Modifying how ghosts get colors...
+        self.ghostColors = GHOST_COLORS
+        ##################################################
+
     def checkNullDisplay(self):
         return False
 
@@ -279,7 +284,7 @@ class PacmanGraphics:
 
         if self.capture:
             outlineColor = TEAM_COLORS[index % 2]
-            fillColor = GHOST_COLORS[index]
+            fillColor = self.ghostColors[index]  # CPSC 481 - a little better..
             width = PACMAN_CAPTURE_OUTLINE_WIDTH
 
         return [circle(screen_point, PACMAN_SCALE * self.gridSize,
@@ -334,7 +339,13 @@ class PacmanGraphics:
         if ghost.scaredTimer > 0:
             return SCARED_COLOR
         else:
-            return GHOST_COLORS[ghostIndex]
+            return self.ghostColors[ghostIndex] # CPSC 481 - a little better...
+
+    ###########################################################
+    # CPSC 481 - Providing the option to set ghost color....
+    ###########################################################
+    def setGhostColor(self, ghostIndex, color):
+        self.ghostColors[ghostIndex] = color
 
     def drawGhost(self, ghost, agentIndex):
         pos = self.getPosition(ghost)
@@ -401,7 +412,7 @@ class PacmanGraphics:
         if ghost.scaredTimer > 0:
             color = SCARED_COLOR
         else:
-            color = GHOST_COLORS[ghostIndex]
+            color = self.ghostColors[ghostIndex]  # CPSC 481 - a little better...
         edit(ghostImageParts[0], ('fill', color), ('outline', color))
         self.moveEyes(self.getPosition(ghost), self.getDirection(ghost), ghostImageParts[-4:])
         refresh()
@@ -584,6 +595,21 @@ class PacmanGraphics:
             if self.frameTime < 0:
                 refresh()
 
+    ##########################################################################################################
+    # CPSC 481 - copy of drawExpandedCells() used to draw ghost paths in color that matches our ghost color..
+    ##########################################################################################################
+    def drawGhostPath(self, cells, color):
+        n = float(len(cells))
+        self.clearExpandedCells()
+        self.expandedCells = []
+        for k, cell in enumerate(cells):
+            screenPos = self.to_screen(cell)
+            cellColor = formatColor(*[(n-k) * c * .5 / n + .25 for c in color])
+            block = square(screenPos, 0.5 * self.gridSize, color = cellColor, filled = 1, behind=2)
+            self.expandedCells.append(block)
+            if self.frameTime < 0:
+                refresh()
+
     def clearExpandedCells(self):
         if 'expandedCells' in dir(self) and len(self.expandedCells) > 0:
             for cell in self.expandedCells:
@@ -650,7 +676,7 @@ class FirstPersonPacmanGraphics(PacmanGraphics):
                     self.currentGhostImages[i] = None
 
     def getGhostColor(self, ghost, ghostIndex):
-        return GHOST_COLORS[ghostIndex]
+        return self.ghostColors[ghostIndex]  # CPSC 481 - a little better...
 
     def getPosition(self, ghostState):
         if not self.showGhosts and not ghostState.isPacman and ghostState.getPosition()[1] > 1:
