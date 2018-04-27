@@ -227,10 +227,13 @@ def manhattanDistance( xy1, xy2 ):
     "Returns the Manhattan distance between points xy1 and xy2"
     return abs( xy1[0] - xy2[0] ) + abs( xy1[1] - xy2[1] )
 
-
+########################################################################################################################
+# CPSC 481 - added "as the crow flies" distance calculation (currently used by blink)
+########################################################################################################################
 def euclideanDistance( xy1, xy2 ):
     "The Euclidean distance heuristic for a PositionSearchProblem"
     return ( (xy1[0] - xy2[0]) ** 2 + (xy1[1] - xy2[1]) ** 2 ) ** 0.5
+########################################################################################################################
 
 """
   Data structures and functions useful for various course projects
