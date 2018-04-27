@@ -92,15 +92,13 @@ class DirectionalGhost( GhostAgent ):
         dist.normalize()
         return dist
 
+
 ##################################################
 # CPSC 481 - Blinky, Pinky, Inky, and Clyder
 ##################################################
-class Blinky(GhostAgent):
-    # Blinky always targets PacMan's position, currently using BFS
-    def __init__( self, index, prob_attack=0.8, prob_scaredFlee=0.8):
+class Blinky(GhostAgent):  # Blinky always targets PacMan's position
+    def __init__(self, index):
         self.index = index
-        self.prob_attack = prob_attack
-        self.prob_scaredFlee = prob_scaredFlee
         self.color = [0.82, 0.01, 0.001]  # Red
         self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
         self.isColorSet = False
