@@ -203,23 +203,22 @@ class Pinky(GhostAgent):
         return dist
 
     def getTargetPosition(self, state):
+        walls = state.getWalls()
         pacman_state = state.getPacmanState()
         pacman_direction = pacman_state.getDirection()
-        pacman_position = state.getPacmanPosition()
-        pac_x, pac_y = pacman_position
-        offset_x, offset_y = Actions.getSuccessor(pacman_position, pacman_direction)
-        # changes target to be four tiles away from pac-man in the direction pac-man is currently moving
-        for i in range(4):
-            if pacman_direction == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
-                pac_y += 1
-            elif pacman_direction == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
-                pac_y -= 1
-            elif pacman_direction == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y) + i):
-                pac_x += 1
-            elif pacman_direction == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
-                pac_x -= 1
+        pac_x, pac_y = state.getPacmanPosition()
+        # changes target to a max of four tiles away from pac-man in the direction pac-man is currently moving
+        for i in reversed(range(5)):
+            if pacman_direction == 'North' and (pac_y+i < walls.height and not walls[pac_x][pac_y+i]):
+                return pac_x, pac_y+i
+            elif pacman_direction == 'South' and (pac_y-i > 0 and not walls[pac_x][pac_y-i]):
+                return pac_x, pac_y-i
+            elif pacman_direction == 'East' and (pac_x+i < walls.width and not walls[pac_x+i][pac_y]):
+                return pac_x+i, pac_y
+            elif pacman_direction == 'West' and (pac_x-i > 0 and not walls[pac_x-i][pac_y]):
+                return pac_x-i, pac_y
             else:
-                break
+                continue
         return pac_x, pac_y
 
 class Inky(GhostAgent):
@@ -278,25 +277,26 @@ class Inky(GhostAgent):
         walls = state.getWalls()
         height, width = walls.height, walls.width
         top, right = walls.height - 2, walls.width - 2
-        pacman_position = state.getPacmanPosition()
         pacman_state = state.getPacmanState()
         pacman_direction = pacman_state.getDirection()
-        blinky_position = state.getGhostPosition(1)
-        pac_x, pac_y = pacman_position
-        b_x, b_y = blinky_position
+        pac_x, pac_y = state.getPacmanPosition()
+        b_x, b_y = state.getGhostPosition(1)
         # two tile offset from pac-man in the direction pac-man is currently moving
-        offset_x, offset_y = Actions.getSuccessor(pacman_position, pacman_direction)
-        for i in range(2):
-            if pacman_direction == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
-                pac_y += 1
-            elif pacman_direction == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
-                pac_y -= 1
-            elif pacman_direction == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y) + i):
-                pac_x += 1
-            elif pacman_direction == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
-                pac_x -= 1
-            else:
+        for i in reversed(range(3)):
+            if pacman_direction == 'North' and (pac_y + i < walls.height and not walls[pac_x][pac_y + i]):
+                pac_y += i
                 break
+            elif pacman_direction == 'South' and (pac_y - i > 0 and not walls[pac_x][pac_y - i]):
+                pac_y -= i
+                break
+            elif pacman_direction == 'East' and (pac_x + i < walls.width and not walls[pac_x + i][pac_y]):
+                pac_x += i
+                break
+            elif pacman_direction == 'West' and (pac_x - i > 0 and not walls[pac_x - i][pac_y]):
+                pac_x -= i
+                break
+            else:
+                continue
         # mirrors blinky's current position around the two tile offset
         target_x = int(pac_x) + (int(pac_x) - int(b_x))
         target_y = int(pac_y) + (int(pac_y) - int(b_y))
@@ -383,15 +383,12 @@ class Clyde( GhostAgent ):
         return dist
 
     def getTargetPosition(self, state):
-        pos = state.getGhostPosition(self.index)
-        pacman_position = state.getPacmanPosition()
-        pac_x, pac_y = pacman_position
-        pos_x, pos_y = pos
-        # returns a list of directions like... North, South, South, East, etc..
+        pac_x, pac_y = state.getPacmanPosition()
+        pos_x, pos_y = state.getGhostPosition(self.index)
         # list will point cylde home if less than 8 spaces away from pac-man
         if abs(int(pac_x)-(pos_x)) + abs(int(pac_y)-(pos_y)) < 8:
             return 1, 1
         else:
-            return pacman_position
+            return pac_x, pac_y
 ##################################################
 
