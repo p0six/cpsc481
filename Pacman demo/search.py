@@ -24,6 +24,7 @@ from util import PriorityQueue
 
 # CPSC 481 - Used in aStarSearchGhost()
 from game import Actions
+from game import Directions
 from util import manhattanDistance
 
 class SearchProblem:
@@ -309,15 +310,19 @@ def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
                         child_cost = child_nodes[2];
                     ################################################################################
                     # CPSC 481 - make ghosts attempt to avoid PacMan if they're able to when scared
+                    ################################################################################
                     if gameState.getGhostState(ghostIndex).scaredTimer > 0:
-                        pacmanPosition = gameState.getPacmanPosition()
+                        pacman_position = gameState.getPacmanPosition()
                         pos_x, pos_y = gameState.getGhostPosition(ghostIndex)
-                        distance = manhattanDistance(gameState.getGhostPosition(ghostIndex), pacmanPosition)
+                        distance = manhattanDistance(gameState.getGhostPosition(ghostIndex), pacman_position)
                         ghost_position_next = Actions.getSuccessor((pos_x, pos_y), child_action)
-                        pacman_position_next = Actions.getSuccessor(pacmanPosition, gameState.getPacmanState().getDirection())
+                        # pacman_position_next = Actions.getSuccessor(pacmanPosition, gameState.getPacmanState().getDirection())
+                        pacman_position_next = Actions.getSuccessor(pacman_position, Directions.STOP)
                         distance_next = manhattanDistance(ghost_position_next, pacman_position_next)
                         if distance_next < distance:
-                            child_cost += 999
+                            child_cost += 99999
+                        elif distance_next == distance:
+                            child_cost += 99
                     ################################################################################
 
                     heuristic_value = heuristic(child_state, problem)
