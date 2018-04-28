@@ -338,6 +338,7 @@ class Clyde( GhostAgent ):
         self.color = [.858, .522, .11]  # Orange
         self.isColorSet = False
         self.initialStateSet = False
+        self.inactiveCounter = 0
 
     def getDistribution(self, state):
         if self.initialStateSet is False:
@@ -353,7 +354,8 @@ class Clyde( GhostAgent ):
         else:
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
-        if is_scared or float(self.initialState.getNumFood())/state.getNumFood() < 1.5:
+        if is_scared or (float(self.initialState.getNumFood())/state.getNumFood() < 1.5 and self.inactiveCounter < 90):
+            self.inactiveCounter += 1
             direction_list = []
         # elif is_scatter:
         #     direction_list = mazeDirections(intpos, corners[0], state, self.index)
