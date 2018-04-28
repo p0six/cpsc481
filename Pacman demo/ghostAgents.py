@@ -143,7 +143,7 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
             if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
                 __main__._display.setGhostColor(self.index, formatColor(self.color[0], self.color[1], self.color[2]))
                 self.isColorSet = True
-            if 'drawGhostPath' in dir(__main__._display):
+            if 'drawGhostPath' in dir(__main__._display) and __main__._drawPath:
                 __main__._display.drawGhostPath(cell_list, self.color)
         dist.normalize()
         return dist

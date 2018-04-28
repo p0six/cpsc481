@@ -536,6 +536,8 @@ def readCommand( argv ):
                       help='Load CPSC481 Inky', default=False)
     parser.add_option('--clyde', action='store_true', dest='clyde',
                       help='Load CPSC481 Clyde', default=False)
+    parser.add_option('-d', '--drawPath', action='store_true', dest='drawPath',
+                      help='Draw path to target', default=False)
     ####################################################################################################################
 
     options, otherjunk = parser.parse_args(argv)
@@ -588,6 +590,12 @@ def readCommand( argv ):
         else:  # Default Ghosts...
             ghostType = loadAgent(options.ghost, noKeyboard)
             args['ghosts'] = [ghostType(i + 1) for i in range(options.numGhosts)]
+
+    import __main__
+    if options.drawPath:
+        __main__.__dict__['_drawPath'] = True
+    else:
+        __main__.__dict__['_drawPath'] = False
     ####################################################################################################################
 
     # Choose a display format
@@ -660,6 +668,7 @@ def replayGame( layout, actions, display ):
 
     display.finish()
 
+# def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
 def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0, catchExceptions=False, timeout=30 ):
     import __main__
     __main__.__dict__['_display'] = display
