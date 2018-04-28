@@ -154,7 +154,6 @@ class Pinky(GhostAgent):
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
         self.color = [.92, .51, .9]  # Pink
-        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
         self.isColorSet = False
 
     def getDistribution(self, state):
@@ -224,7 +223,7 @@ class Pinky(GhostAgent):
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
         if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
-            __main__._display.setGhostColor(self.index, self.formattedColor)
+            __main__._display.setGhostColor(self.index, self.color)
             self.isColorSet = True
         if 'drawGhostPath' in dir(__main__._display):
             __main__._display.drawGhostPath(cell_list, self.color)
@@ -239,7 +238,6 @@ class Inky(GhostAgent):
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
         self.color = [.274, .749, .933]  # Cyan
-        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
         self.isColorSet = False
 
     def getDistribution(self, state):
@@ -343,7 +341,7 @@ class Inky(GhostAgent):
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
         if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
-            __main__._display.setGhostColor(self.index, self.formattedColor)
+            __main__._display.setGhostColor(self.index, self.color)
             self.isColorSet = True
         if 'drawGhostPath' in dir(__main__._display):
             __main__._display.drawGhostPath(cell_list, self.color)
@@ -360,7 +358,6 @@ class Clyde( GhostAgent ):
         self.prob_attack = prob_attack
         self.prob_scaredFlee = prob_scaredFlee
         self.color = [.858, .522, .11]  # Orange
-        self.formattedColor = formatColor(self.color[0], self.color[1], self.color[2])
         self.isColorSet = False
 
     def getDistribution(self, state):
@@ -420,7 +417,7 @@ class Clyde( GhostAgent ):
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
         if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
-            __main__._display.setGhostColor(self.index, self.formattedColor)
+            __main__._display.setGhostColor(self.index, self.color)
             self.isColorSet = True
         if 'drawGhostPath' in dir(__main__._display):
             __main__._display.drawGhostPath(cell_list, self.color)
