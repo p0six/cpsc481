@@ -26,7 +26,6 @@ import sys
 import pacman
 from searchAgents import mazeDirections, mazeDistance
 from util import euclideanDistance
-from graphicsUtils import formatColor
 ########################################################
 
 class GhostAgent( Agent ):
@@ -135,10 +134,10 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
         import __main__
         if '_display' in dir(__main__):
             if self.isColorSet is False and 'setGhostColor' in dir(__main__._display):
-                __main__._display.setGhostColor(self.index, formatColor(self.color[0], self.color[1], self.color[2]))
+                __main__._display.setGhostColor(self.index, self.color)
                 self.isColorSet = True
             if 'drawGhostPath' in dir(__main__._display) and __main__._drawPath:
-                cell_list = []  # cell_list is the list of directions converted into coordinates we use to draw path
+                cell_list = []  # our list of directions converted into coordinates we then use to draw path
                 for direction in direction_list:
                     successor = Actions.getSuccessor(intpos, direction)
                     cell_list.append(successor)

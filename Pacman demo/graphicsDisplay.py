@@ -345,7 +345,7 @@ class PacmanGraphics:
     # CPSC 481 - Providing the option to set ghost color....
     ###########################################################
     def setGhostColor(self, ghostIndex, color):
-        self.ghostColors[ghostIndex] = color
+        self.ghostColors[ghostIndex] = formatColor(color[0], color[1], color[2])
 
     def drawGhost(self, ghost, agentIndex):
         pos = self.getPosition(ghost)
