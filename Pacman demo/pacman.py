@@ -528,6 +528,14 @@ def readCommand( argv ):
     ####################################################################################################################
     parser.add_option('-o', '--originalGhosts', action='store_true', dest='originalGhosts',
                       help='Load CPSC481 original ghosts pinky, blinky, inky, clyde', default=False)
+    parser.add_option('--blinky', action='store_true', dest='blinky',
+                      help='Load CPSC481 Blinky', default=False)
+    parser.add_option('--pinky', action='store_true', dest='pinky',
+                      help='Load CPSC481 Pinky', default=False)
+    parser.add_option('--inky', action='store_true', dest='inky',
+                      help='Load CPSC481 Inky', default=False)
+    parser.add_option('--clyde', action='store_true', dest='clyde',
+                      help='Load CPSC481 Clyde', default=False)
     ####################################################################################################################
 
     options, otherjunk = parser.parse_args(argv)
@@ -558,7 +566,7 @@ def readCommand( argv ):
         options.numIgnore = int(agentOpts['numTrain'])
 
     ####################################################################################################################
-    # CPSC 481 - We now have individually configurable ghost behaviors when "-o" is specified on command line :D
+    # CPSC 481 - We now have individual ghost classes now.... run them all with "-o" or individually i.e. "--blinky"
     ####################################################################################################################
     if options.originalGhosts is True:
         blinky = loadAgent('Blinky', noKeyboard)
@@ -566,12 +574,20 @@ def readCommand( argv ):
         inky = loadAgent('Inky', noKeyboard)
         clyde = loadAgent('Clyde', noKeyboard)
         args['ghosts'] = [blinky(1), pinky(2), inky(3), clyde(4)]
-        # blinky = loadAgent('Blinky', noKeyboard)
-        # args['ghosts'] = [blinky(1)]
     else:
-        # Choose a ghost agent
-        ghostType = loadAgent(options.ghost, noKeyboard)
-        args['ghosts'] = [ghostType(i + 1) for i in range(options.numGhosts)]
+        if options.blinky or options.pinky or options.inky or options.clyde:
+            args['ghosts'] = []
+            if options.blinky:
+                args['ghosts'].append(loadAgent('Blinky', noKeyboard)(len(args['ghosts']) + 1))
+            if options.pinky:
+                args['ghosts'].append(loadAgent('Pinky', noKeyboard)(len(args['ghosts']) + 1))
+            if options.inky:
+                args['ghosts'].append(loadAgent('Inky', noKeyboard)(len(args['ghosts']) + 1))
+            if options.clyde:
+                args['ghosts'].append(loadAgent('Clyde', noKeyboard)(len(args['ghosts']) + 1))
+        else:  # Default Ghosts...
+            ghostType = loadAgent(options.ghost, noKeyboard)
+            args['ghosts'] = [ghostType(i + 1) for i in range(options.numGhosts)]
     ####################################################################################################################
 
     # Choose a display format
