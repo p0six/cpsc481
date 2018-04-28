@@ -26,8 +26,10 @@ python pacman.py -l bigSearch -p ApproximateSearchAgent -z .5 -q
 ########################################################################################################################
 # Trigger our Ghost Agents... Blinky / Pinky / Inky / Clyde, using the pacmanClassic map we created.
 python pacman.py -l pacmanClassic -o
+
+# Allow PacMan to play against Blinky and draw Blinky's intended path....
+python pacman.py -l pacmanClassic --blinky  -z .5 -d -p ReflexAgent
+
+# PacMan play's against all four ghosts, not drawing intended paths.
+python pacman.py -l pacmanClassic -o -z .5 -p ReflexAgent
 ########################################################################################################################
-# An example of the astar search algo with manhattanHeuristic
-python pacman.py -l pacmanClassic -a fn=astar,heuristic=manhattanHeuristic
-# Run 10 games, with PacMan's GreedyAgent, quietly, record output that can be later replayed.... against our ghosts :D
-python pacman.py -p GreedyAgent -q -r -n 10 -o
