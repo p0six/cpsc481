@@ -131,12 +131,6 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
             else:
                 dist[direction_list[0]] = 1
 
-        cell_list = []  # cell_list is the list of directions converted into coordinates we use to draw path
-        for direction in direction_list:
-            successor = Actions.getSuccessor(intpos, direction)
-            cell_list.append(successor)
-            intpos = successor
-
         # This draws the path our ghost is planning on taking to get to his target..
         import __main__
         if '_display' in dir(__main__):
@@ -144,6 +138,11 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
                 __main__._display.setGhostColor(self.index, formatColor(self.color[0], self.color[1], self.color[2]))
                 self.isColorSet = True
             if 'drawGhostPath' in dir(__main__._display) and __main__._drawPath:
+                cell_list = []  # cell_list is the list of directions converted into coordinates we use to draw path
+                for direction in direction_list:
+                    successor = Actions.getSuccessor(intpos, direction)
+                    cell_list.append(successor)
+                    intpos = successor
                 __main__._display.drawGhostPath(cell_list, self.color)
         dist.normalize()
         return dist
