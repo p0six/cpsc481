@@ -22,6 +22,10 @@ from util import Stack
 from util import Queue
 from util import PriorityQueue
 
+# CPSC 481 - Used in aStarSearchGhost()
+from game import Actions
+from util import manhattanDistance
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -245,7 +249,7 @@ def nullHeuristic(state, problem=None):
 ##########################################################################################
 # CPSC 481 - Copy of aStarSearch() that eliminates paths that cause ghost to go in reverse
 ##########################################################################################
-def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
+def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first, as a ghost."""
 
     loc_pqueue = PriorityQueue()
@@ -254,6 +258,7 @@ def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
     direction_list = []
     path_cost = 0
     heuristic_value = 0
+    reverse = Actions.reverseDirection(gameState.getGhostState(ghostIndex).configuration.direction)
 
     start_node = problem.getStartState()
     parent_child_map[start_node] = []
@@ -302,7 +307,18 @@ def aStarSearchGhost(problem, reverse, heuristic=nullHeuristic):
                         child_cost = 99999999999999
                     else:
                         child_cost = child_nodes[2];
-                    ######################################################################
+                    ################################################################################
+                    # CPSC 481 - make ghosts attempt to avoid PacMan if they're able to when scared
+                    if gameState.getGhostState(ghostIndex).scaredTimer > 0:
+                        pacmanPosition = gameState.getPacmanPosition()
+                        pos_x, pos_y = gameState.getGhostPosition(ghostIndex)
+                        distance = manhattanDistance(gameState.getGhostPosition(ghostIndex), pacmanPosition)
+                        ghost_position_next = Actions.getSuccessor((pos_x, pos_y), child_action)
+                        pacman_position_next = Actions.getSuccessor(pacmanPosition, gameState.getPacmanState().getDirection())
+                        distance_next = manhattanDistance(ghost_position_next, pacman_position_next)
+                        if distance_next < distance:
+                            child_cost += 999
+                    ################################################################################
 
                     heuristic_value = heuristic(child_state, problem)
                     gvalue = path_cost + child_cost

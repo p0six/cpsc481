@@ -102,21 +102,20 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
         self.isColorSet = False
 
     def getDistribution(self, state):
-        ghostState = state.getGhostState(self.index)
+        ghost_state = state.getGhostState(self.index)
         pos_x, pos_y = state.getGhostPosition(self.index)
-        pacmanPosition = state.getPacmanPosition()
         walls = state.getWalls()
         top, right = walls.height-2, walls.width-2
         corners = ((1,1), (1,top), (right, 1), (right, top))
-        isScared = ghostState.scaredTimer > 0
-        ghostDirection = ghostState.configuration.direction
+        is_scared = ghost_state.scaredTimer > 0
+        ghost_direction = ghost_state.configuration.direction
 
-        if ghostDirection == Directions.EAST or ghostDirection == Directions.NORTH:
+        if ghost_direction == Directions.EAST or ghost_direction == Directions.NORTH:
             intpos = (int(math.ceil(pos_x)), int(math.ceil(pos_y)))
         else:
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
-        if isScared:
+        if is_scared:
             direction_list = mazeDirections(intpos, corners[3], state, self.index)
         else:
             target_position = self.getTargetPosition(state)
@@ -124,7 +123,7 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
 
         dist = util.Counter()
         if (float(pos_x)).is_integer() is False or (float(pos_y)).is_integer() is False:
-            dist[ghostDirection] = 1  # If Ghost is in between tiles, continue previous direction
+            dist[ghost_direction] = 1  # If Ghost is in between tiles, continue previous direction
         else:
             if len(direction_list) == 0:
                 dist[state.getLegalActions(self.index)[0]] = 1
@@ -159,21 +158,20 @@ class Pinky(GhostAgent):
         self.isColorSet = False
 
     def getDistribution(self, state):
-        ghostState = state.getGhostState(self.index)
+        ghost_state = state.getGhostState(self.index)
         pos_x, pos_y = state.getGhostPosition(self.index)
-        pacmanPosition = state.getPacmanPosition()
         walls = state.getWalls()
         top, right = walls.height-2, walls.width-2
         corners = ((1,1), (1,top), (right, 1), (right, top))
-        isScared = ghostState.scaredTimer > 0
-        ghostDirection = ghostState.configuration.direction
+        is_scared = ghost_state.scaredTimer > 0
+        ghost_direction = ghost_state.configuration.direction
 
-        if ghostDirection == Directions.EAST or ghostDirection == Directions.NORTH:
+        if ghost_direction == Directions.EAST or ghost_direction == Directions.NORTH:
             intpos = (int(math.ceil(pos_x)), int(math.ceil(pos_y)))
         else:
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
-        if isScared:
+        if is_scared:
             direction_list = mazeDirections(intpos, corners[1], state, self.index)
         else:
             target_position = self.getTargetPosition(state)
@@ -181,7 +179,7 @@ class Pinky(GhostAgent):
 
         dist = util.Counter()
         if (float(pos_x)).is_integer() is False or (float(pos_y)).is_integer() is False:
-            dist[ghostDirection] = 1  # If Ghost is in between tiles, continue previous direction
+            dist[ghost_direction] = 1  # If Ghost is in between tiles, continue previous direction
         else:
             if len(direction_list) == 0:
                 dist[state.getLegalActions(self.index)[0]] = 1
@@ -205,20 +203,20 @@ class Pinky(GhostAgent):
         return dist
 
     def getTargetPosition(self, state):
-        pacmanState = state.getPacmanState()
-        pacmanDirection = pacmanState.getDirection()
-        pacmanPosition = state.getPacmanPosition()
-        pac_x, pac_y = pacmanPosition
-        offset_x, offset_y = Actions.getSuccessor(pacmanPosition, pacmanDirection)
+        pacman_state = state.getPacmanState()
+        pacman_direction = pacman_state.getDirection()
+        pacman_position = state.getPacmanPosition()
+        pac_x, pac_y = pacman_position
+        offset_x, offset_y = Actions.getSuccessor(pacman_position, pacman_direction)
         # changes target to be four tiles away from pac-man in the direction pac-man is currently moving
         for i in range(4):
-            if pacmanDirection == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
+            if pacman_direction == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
                 pac_y += 1
-            elif pacmanDirection == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
+            elif pacman_direction == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
                 pac_y -= 1
-            elif pacmanDirection == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y) + i):
+            elif pacman_direction == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y) + i):
                 pac_x += 1
-            elif pacmanDirection == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
+            elif pacman_direction == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
                 pac_x -= 1
             else:
                 break
@@ -232,21 +230,20 @@ class Inky(GhostAgent):
         self.isColorSet = False
 
     def getDistribution(self, state):
-        ghostState = state.getGhostState(self.index)
+        ghost_state = state.getGhostState(self.index)
         pos_x, pos_y = state.getGhostPosition(self.index)
-        pacmanPosition = state.getPacmanPosition()
         walls = state.getWalls()
         top, right = walls.height-2, walls.width-2
         corners = ((1,1), (1,top), (right, 1), (right, top))
-        isScared = ghostState.scaredTimer > 0
-        ghostDirection = ghostState.configuration.direction
+        is_scared = ghost_state.scaredTimer > 0
+        ghost_direction = ghost_state.configuration.direction
 
-        if ghostDirection == Directions.EAST or ghostDirection == Directions.NORTH:
+        if ghost_direction == Directions.EAST or ghost_direction == Directions.NORTH:
             intpos = (int(math.ceil(pos_x)), int(math.ceil(pos_y)))
         else:
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
-        if isScared:
+        if is_scared:
             direction_list = mazeDirections(intpos, corners[2], state, self.index)
         else:
             target_position = self.getTargetPosition(state)
@@ -254,7 +251,7 @@ class Inky(GhostAgent):
 
         dist = util.Counter()
         if (float(pos_x)).is_integer() is False or (float(pos_y)).is_integer() is False:
-            dist[ghostDirection] = 1  # If Ghost is in between tiles, continue previous direction
+            dist[ghost_direction] = 1  # If Ghost is in between tiles, continue previous direction
         else:
             if len(direction_list) == 0:
                 dist[state.getLegalActions(self.index)[0]] = 1
@@ -281,22 +278,22 @@ class Inky(GhostAgent):
         walls = state.getWalls()
         height, width = walls.height, walls.width
         top, right = walls.height - 2, walls.width - 2
-        pacmanPosition = state.getPacmanPosition()
-        pacmanState = state.getPacmanState()
-        pacmanDirection = pacmanState.getDirection()
-        blinkyPosition = state.getGhostPosition(1)
-        pac_x, pac_y = pacmanPosition
-        b_x, b_y = blinkyPosition
+        pacman_position = state.getPacmanPosition()
+        pacman_state = state.getPacmanState()
+        pacman_direction = pacman_state.getDirection()
+        blinky_position = state.getGhostPosition(1)
+        pac_x, pac_y = pacman_position
+        b_x, b_y = blinky_position
         # two tile offset from pac-man in the direction pac-man is currently moving
-        offset_x, offset_y = Actions.getSuccessor(pacmanPosition, pacmanDirection)
+        offset_x, offset_y = Actions.getSuccessor(pacman_position, pacman_direction)
         for i in range(2):
-            if pacmanDirection == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
+            if pacman_direction == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
                 pac_y += 1
-            elif pacmanDirection == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
+            elif pacman_direction == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
                 pac_y -= 1
-            elif pacmanDirection == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y) + i):
+            elif pacman_direction == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y) + i):
                 pac_x += 1
-            elif pacmanDirection == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
+            elif pacman_direction == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
                 pac_x -= 1
             else:
                 break
@@ -341,21 +338,20 @@ class Clyde( GhostAgent ):
         self.isColorSet = False
 
     def getDistribution(self, state):
-        ghostState = state.getGhostState(self.index)
+        ghost_state = state.getGhostState(self.index)
         pos_x, pos_y = state.getGhostPosition(self.index)
-        pacmanPosition = state.getPacmanPosition()
         walls = state.getWalls()
         top, right = walls.height-2, walls.width-2
         corners = ((1,1), (1,top), (right, 1), (right, top))
-        isScared = ghostState.scaredTimer > 0
-        ghostDirection = ghostState.configuration.direction
+        is_scared = ghost_state.scaredTimer > 0
+        ghost_direction = ghost_state.configuration.direction
 
-        if ghostDirection == Directions.EAST or ghostDirection == Directions.NORTH:
+        if ghost_direction == Directions.EAST or ghost_direction == Directions.NORTH:
             intpos = (int(math.ceil(pos_x)), int(math.ceil(pos_y)))
         else:
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
-        if isScared:
+        if is_scared:
             direction_list = mazeDirections(intpos, corners[0], state, self.index)
         else:
             target_position = self.getTargetPosition(state)
@@ -363,7 +359,7 @@ class Clyde( GhostAgent ):
 
         dist = util.Counter()
         if (float(pos_x)).is_integer() is False or (float(pos_y)).is_integer() is False:
-            dist[ghostDirection] = 1  # If Ghost is in between tiles, continue previous direction
+            dist[ghost_direction] = 1  # If Ghost is in between tiles, continue previous direction
         else:
             if len(direction_list) == 0:
                 dist[state.getLegalActions(self.index)[0]] = 1
@@ -388,15 +384,14 @@ class Clyde( GhostAgent ):
 
     def getTargetPosition(self, state):
         pos = state.getGhostPosition(self.index)
-        pacmanPosition = state.getPacmanPosition()
-        pac_x, pac_y = pacmanPosition
+        pacman_position = state.getPacmanPosition()
+        pac_x, pac_y = pacman_position
         pos_x, pos_y = pos
-        intpos = (int(pos_x), int(pos_y))  # pos returns floats, but we need ints.
         # returns a list of directions like... North, South, South, East, etc..
         # list will point cylde home if less than 8 spaces away from pac-man
         if abs(int(pac_x)-(pos_x)) + abs(int(pac_y)-(pos_y)) < 8:
             return 1, 1
         else:
-            return pacmanPosition
+            return pacman_position
 ##################################################
 
