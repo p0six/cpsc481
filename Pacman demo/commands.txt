@@ -33,3 +33,6 @@ python pacman.py -l pacmanClassic --blinky  -z .5 -d -p ReflexAgent
 # PacMan play's against all four ghosts, not drawing intended paths.
 python pacman.py -l pacmanClassic -o -z .5 -p ReflexAgent
 ########################################################################################################################
+# MacOS: Python 2.7.15rc1 corrects a performance bug, and bug where game window does not open directly to foreground
+/Library/Frameworks/Python.framework/Versions/2.7/bin/python pacman.py -z .5 -l pacmanClassic --blinky -d
+########################################################################################################################

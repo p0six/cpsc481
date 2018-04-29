@@ -45,7 +45,9 @@ class ReflexAgent(Agent):
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
+        # print bestScore
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        # print bestIndices
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
 
         "Add more of your code here if you want to"
@@ -90,20 +92,20 @@ class ReflexAgent(Agent):
             distance = manhattanDistance(ghost_position, pacman_position)
             ghost_position_next = newGhostState.getPosition()
             distance_next = manhattanDistance(ghost_position_next, newPos)
-            if currentGameState.getGhostStates()[index].scaredTimer <= 0:
-                if distance_next < distance:
+            if currentGameState.getGhostStates()[index].scaredTimer <= 0:  # if the ghost is not scared...
+                if distance_next < distance:  # if the ghost is now closer to pacman...
                     ghost_dist_diff -= 99
-                elif distance_next == distance:
-                    ghost_dist_diff -= 40
+                # elif distance_next == distance:
+                #     ghost_dist_diff -= 40
                 else:
-                    ghost_dist_diff += 500
-            else:
+                    ghost_dist_diff += 120
+            else:  # ghost is scared..
                 if distance_next < distance:
                     ghost_dist_diff += 99
-                elif distance_next == distance:
-                    ghost_dist_diff += 40
+                # elif distance_next == distance:
+                #     ghost_dist_diff += 40
                 else:
-                    ghost_dist_diff -= 500
+                    ghost_dist_diff -= 120
             ########################################################################
 
         food_available = []
@@ -137,6 +139,7 @@ class ReflexAgent(Agent):
         score = 0.0
         score = (10*(1/closest_food_dist))
         return score
+
 
 def scoreEvaluationFunction(currentGameState):
     """
