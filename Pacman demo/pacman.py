@@ -281,6 +281,22 @@ class ClassicGameRules:
         self.quiet = quiet
         return game
 
+    ##########################################
+    # CPSC 481 - Reinforcement Learning...
+    ##########################################
+    def newReinforcementGame(self, layout, pacmanAgent, ghostAgents, display, weights, quiet = False, catchExceptions=False):
+        agents = [pacmanAgent] + ghostAgents[:layout.getNumGhosts()]
+        initState = GameState()
+        initState.initialize( layout, len(ghostAgents) )
+        game = Game(agents, display, self, catchExceptions=catchExceptions)
+        game.state = initState
+        game.state.weights = weights
+        self.initialState = initState.deepCopy()
+        self.initialState.weights = weights
+        self.quiet = quiet
+        return game
+    ##########################################
+
     def process(self, state, game):
         """
         Checks to see whether it is time to end the game.
@@ -473,6 +489,16 @@ def parseAgentArgs(str):
         opts[key] = val
     return opts
 
+
+###############################################################################################
+# CPSC 481 - create a function to return a list from the command line list of weights provided
+###############################################################################################
+def parseWeights(str):
+    if str == None: return []
+    return [int(n) for n in str.split(',')]
+###############################################################################################
+
+
 def readCommand( argv ):
     """
     Processes the command used to run pacman from the command line.
@@ -527,7 +553,7 @@ def readCommand( argv ):
     # CPSC 481 - Add option to trigger our Ghost Agents...
     ####################################################################################################################
     parser.add_option('-o', '--originalGhosts', action='store_true', dest='originalGhosts',
-                      help='Load CPSC481 original ghosts pinky, blinky, inky, clyde', default=False)
+                      help='Load CPSC481 original ghosts Blinky, Pinky, Inky, Clyde', default=False)
     parser.add_option('--blinky', action='store_true', dest='blinky',
                       help='Load CPSC481 Blinky', default=False)
     parser.add_option('--pinky', action='store_true', dest='pinky',
@@ -538,6 +564,8 @@ def readCommand( argv ):
                       help='Load CPSC481 Clyde', default=False)
     parser.add_option('-d', '--drawPath', action='store_true', dest='drawPath',
                       help='Draw path to target', default=False)
+    parser.add_option('--reinforcementLearning',dest='weights',
+                      help='Comma separated values of initial weights for qLearning features. e.g. "1,2,3,4"')
     ####################################################################################################################
 
     options, otherjunk = parser.parse_args(argv)
@@ -596,6 +624,14 @@ def readCommand( argv ):
         __main__.__dict__['_drawPath'] = True
     else:
         __main__.__dict__['_drawPath'] = False
+
+    # Attempt to bring in command line starting weights...
+    if options.weights:
+        __main__.__dict__['_weights'] = parseWeights(options.weights)
+        __main__.__dict__['_reinforcementLearning'] = True
+    else:
+        __main__.__dict__['_reinforcementLearning'] = False
+
     ####################################################################################################################
 
     # Choose a display format
@@ -685,8 +721,27 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         else:
             gameDisplay = display
             rules.quiet = False
-        game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
-        game.run()
+
+        ######################################
+        # CPSC 481 - Attempting to do work..
+        ######################################
+        if __main__.__dict__['_reinforcementLearning']:
+            weights = __main__.__dict__['_weights']
+            sys.stdout.write('pacman.runGames() previous weights = ')
+            print weights
+            game = rules.newReinforcementGame(layout, pacman, ghosts, gameDisplay, weights, beQuiet, catchExceptions)
+            updatedWeights = game.run()  # decide whether updated weights should be within game.run() or elsewhere..
+
+            # Manipulation of 'updatedWeights' could happen here, but probably should happen between states, not games
+
+            game.state.weights = updatedWeights
+            sys.stdout.write('pacman.runGames() new weights = ')
+            print game.state.weights
+            __main__.__dict__['_weights'] = updatedWeights
+        else:
+            game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
+            game.run()
+        ######################################
         if not beQuiet: games.append(game)
 
         if record:

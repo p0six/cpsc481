@@ -481,6 +481,15 @@ class CPSC481Agent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
+
+        #################################################################
+        # CPSC 481 - we bring in some weights....
+        #################################################################
+        import __main__
+        if __main__.__dict__['_reinforcementLearning']:
+            currentGameState.weights = __main__.__dict__['_weights']
+        #################################################################
+
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
@@ -517,6 +526,17 @@ class CPSC481Agent(Agent):
         food_available = []
         food_data = []
         food_distance = 0
+
+        ########################################################################
+        # CPSC 481 - we can now control weights...
+        ########################################################################
+        if __main__.__dict__['_reinforcementLearning']:
+            currentGameState.weights[0] += 1
+            currentGameState.weights[1] += 1
+            currentGameState.weights[2] += 1
+            currentGameState.weights[3] += 1
+            __main__.__dict__['_weights'] = currentGameState.weights
+        ########################################################################
 
         for i in range(0, newFood.width):
             for j in range(0, newFood.height):
