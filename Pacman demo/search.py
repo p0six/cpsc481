@@ -247,101 +247,6 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
-##########################################################################################
-# CPSC 481 - Copy of aStarSearch() that eliminates paths that cause ghost to go in reverse
-##########################################################################################
-def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first, as a ghost."""
-
-    loc_pqueue = PriorityQueue()
-    visited_node = {}
-    parent_child_map = {}
-    direction_list = []
-    path_cost = 0
-    heuristic_value = 0
-    reverse = Actions.reverseDirection(gameState.getGhostState(ghostIndex).configuration.direction)
-
-    start_node = problem.getStartState()
-    parent_child_map[start_node] = []
-    loc_pqueue.push(start_node, heuristic_value)
-
-    def traverse_path(parent_node):
-        temp = 0
-        while True:
-            map_row = parent_child_map[parent_node]
-            if (len(map_row) == 4):  # map_row[parent_node, direction, gvalue, fvalue]
-                parent_node = map_row[0]
-                direction = map_row[1]
-                direction_list.append(direction)
-                temp = temp + 1
-            else:
-                break
-        return direction_list
-
-    while (loc_pqueue.isEmpty() == False):
-
-        parent_node = loc_pqueue.pop()
-
-        if (parent_node != problem.getStartState()):
-            path_cost = parent_child_map[parent_node][2]
-
-        if (problem.isGoalState(parent_node)):
-            pathlist = traverse_path(parent_node)
-            pathlist.reverse()
-            return pathlist
-
-        elif (visited_node.has_key(parent_node) == False):
-            visited_node[parent_node] = []
-            sucessor_list = problem.getSuccessors(parent_node)
-            no_of_child = len(sucessor_list)
-            if (no_of_child > 0):
-                temp = 0
-                while (temp < no_of_child):
-                    child_nodes = sucessor_list[temp]
-                    child_state = child_nodes[0];
-                    child_action = child_nodes[1];
-
-                    ######################################################################
-                    # CPSC 481 - make cost of illegal move very high so it's never chosen
-                    ######################################################################
-                    if child_action == reverse and parent_node == start_node:
-                        child_cost = 99999999999999
-                    else:
-                        child_cost = child_nodes[2];
-                    ################################################################################
-                    # CPSC 481 - make ghosts attempt to avoid PacMan if they're able to when scared
-                    ################################################################################
-                    if gameState.getGhostState(ghostIndex).scaredTimer > 0:
-                        pacman_position = gameState.getPacmanPosition()
-                        pos_x, pos_y = gameState.getGhostPosition(ghostIndex)
-                        distance = manhattanDistance(gameState.getGhostPosition(ghostIndex), pacman_position)
-                        ghost_position_next = Actions.getSuccessor((pos_x, pos_y), child_action)
-                        # pacman_position_next = Actions.getSuccessor(pacmanPosition, gameState.getPacmanState().getDirection())
-                        pacman_position_next = Actions.getSuccessor(pacman_position, Directions.STOP)
-                        distance_next = manhattanDistance(ghost_position_next, pacman_position_next)
-                        if distance_next < distance:
-                            child_cost += 99999
-                        elif distance_next == distance:
-                            child_cost += 99
-                    ################################################################################
-
-                    heuristic_value = heuristic(child_state, problem)
-                    gvalue = path_cost + child_cost
-                    fvalue = gvalue + heuristic_value
-
-                    if (visited_node.has_key(child_state) == False):
-                        loc_pqueue.push(child_state, fvalue)
-                    if (parent_child_map.has_key(child_state) == False):
-                        parent_child_map[child_state] = [parent_node, child_action, gvalue, fvalue]
-                    else:
-                        if (child_state != start_node):
-                            stored_fvalue = parent_child_map[child_state][3]
-                            if (stored_fvalue > fvalue):
-                                parent_child_map[child_state] = [parent_node, child_action, gvalue, fvalue]
-                    temp = temp + 1
-
-
-
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     
@@ -415,9 +320,104 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                                 parent_child_map[child_state] = [parent_node,child_action,gvalue,fvalue]
                     temp = temp + 1
 
-
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
+
+##########################################################################################
+# CPSC 481 - Copy of aStarSearch() that eliminates paths that cause ghost to go in reverse
+##########################################################################################
+def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
+    """
+    Search the node that has the lowest combined cost and heuristic first, as a ghost.
+    Inspired by BFS/A* lecture notes pseudo-code
+    """
+    open_node_list = PriorityQueue()
+    closed_node_list = {}
+    prior_future_map = {}
+    ghost_path = []
+    path_cost = 0
+    heuristic_cost = 0
+    reverse_direction = Actions.reverseDirection(gameState.getGhostState(ghostIndex).configuration.direction)
+
+    start_state = problem.getStartState()
+    prior_future_map[start_state] = []
+    open_node_list.push(start_state, heuristic_cost)
+
+    def traverse_path(prior_node):
+        temp = 0
+        while True:
+            map_row = prior_future_map[prior_node]
+            if (len(map_row) == 4):  # map_row[prior_node, direction, gvalue, fvalue]
+                prior_node = map_row[0]
+                direction = map_row[1]
+                ghost_path.append(direction)
+                temp = temp + 1
+            else:
+                break
+        return ghost_path
+
+    while (open_node_list.isEmpty() == False):
+
+        prior_node = open_node_list.pop()
+
+        if (prior_node != problem.getStartState()):
+            path_cost = prior_future_map[prior_node][2]
+
+        if (problem.isGoalState(prior_node)):
+            path_list = traverse_path(prior_node)
+            path_list.reverse()
+            return path_list
+
+        elif (closed_node_list.has_key(prior_node) == False):
+            closed_node_list[prior_node] = []
+            sucessor_states = problem.getSuccessors(prior_node)
+            num_successors = len(sucessor_states)
+            if (num_successors > 0):
+                temp = 0
+                while (temp < num_successors):
+                    future_nodes = sucessor_states[temp]
+                    future_state = future_nodes[0];
+                    future_action = future_nodes[1];
+
+                    ######################################################################
+                    # CPSC 481 - make cost of illegal move very high so it's never chosen
+                    ######################################################################
+                    if future_action == reverse_direction and prior_node == start_state:
+                        future_cost = 99999999999999
+                    else:
+                        future_cost = future_nodes[2];
+                    ################################################################################
+                    # CPSC 481 - make ghosts attempt to avoid PacMan if they're able to when scared
+                    ################################################################################
+                    if gameState.getGhostState(ghostIndex).scaredTimer > 0:
+                        pacman_position = gameState.getPacmanPosition()
+                        pos_x, pos_y = gameState.getGhostPosition(ghostIndex)
+                        distance_to_pacman = manhattanDistance(gameState.getGhostPosition(ghostIndex), pacman_position)
+                        ghost_position_next = Actions.getSuccessor((pos_x, pos_y), future_action)
+                        # pacman_position_next = Actions.getSuccessor(pacmanPosition, gameState.getPacmanState().getDirection())
+                        pacman_position_next = Actions.getSuccessor(pacman_position, Directions.STOP)
+                        distance_next = manhattanDistance(ghost_position_next, pacman_position_next)
+                        if distance_next < distance_to_pacman:
+                            future_cost += 99999
+                        elif distance_next == distance_to_pacman:
+                            future_cost += 99
+                    ################################################################################
+
+                    heuristic_cost = heuristic(future_state, problem)
+                    gvalue = path_cost + future_cost
+                    fvalue = gvalue + heuristic_cost
+
+                    if (closed_node_list.has_key(future_state) == False):
+                        open_node_list.push(future_state, fvalue)
+                    if (prior_future_map.has_key(future_state) == False):
+                        prior_future_map[future_state] = [prior_node, future_action, gvalue, fvalue]
+                    else:
+                        if (future_state != start_state):
+                            stored_fvalue = prior_future_map[future_state][3]
+                            if (stored_fvalue > fvalue):
+                                prior_future_map[future_state] = [prior_node, future_action, gvalue, fvalue]
+                    temp = temp + 1
