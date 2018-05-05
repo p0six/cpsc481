@@ -77,36 +77,11 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
                 
 
-        ghost_dist_diff = 0
         dist_from_ghost = 0
         for index, newGhostState in enumerate(newGhostStates):
             dist_from_ghost = manhattanDistance(newPos,newGhostState.getPosition())
             if (dist_from_ghost <= 1):
                 return float("-inf")
-
-            ########################################################################
-            # CPSC 481 - attempt to make PacMan less likely to stand still
-            ########################################################################
-            pacman_position = currentGameState.getPacmanPosition()
-            ghost_position = currentGameState.getGhostStates()[index].getPosition()
-            distance = manhattanDistance(ghost_position, pacman_position)
-            ghost_position_next = newGhostState.getPosition()
-            distance_next = manhattanDistance(ghost_position_next, newPos)
-            if currentGameState.getGhostStates()[index].scaredTimer <= 0:  # if the ghost is not scared...
-                if distance_next < distance:  # if the ghost is now closer to pacman...
-                    ghost_dist_diff -= 99
-                # elif distance_next == distance:
-                #     ghost_dist_diff -= 40
-                else:
-                    ghost_dist_diff += 120
-            else:  # ghost is scared..
-                if distance_next < distance:
-                    ghost_dist_diff += 99
-                # elif distance_next == distance:
-                #     ghost_dist_diff += 40
-                else:
-                    ghost_dist_diff -= 120
-            ########################################################################
 
         food_available = []
         food_data = []
@@ -133,8 +108,6 @@ class ReflexAgent(Agent):
         
         if (successor_food_count < current_food_count):
             return 1000
-        else:
-            return ghost_dist_diff
 
         score = 0.0
         score = (10*(1/closest_food_dist))
@@ -466,4 +439,110 @@ def betterEvaluationFunction(currentGameState, action):
 
 # Abbreviation
 better = betterEvaluationFunction
+
+##################
+# CPSC 481
+##################
+class CPSC481Agent(Agent):
+    """
+    An agent to drive PAC-MAN's behavior.
+    """
+
+    def getAction(self, gameState):
+        # Collect legal moves and successor states
+        legalMoves = gameState.getLegalActions()
+
+        # Choose one of the best actions
+        scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
+        bestScore = max(scores)
+        # print bestScore
+        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
+        # print bestIndices
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
+
+        "Add more of your code here if you want to"
+
+        return legalMoves[chosenIndex]
+
+    def evaluationFunction(self, currentGameState, action):
+        """
+        CPSC 481 - Modified evaluation function...
+        Design a better evaluation function here.
+
+        The evaluation function takes in the current and proposed successor
+        GameStates (pacman.py) and returns a number, where higher numbers are better.
+
+        The code below extracts some useful information from the state, like the
+        remaining food (newFood) and Pacman position after moving (newPos).
+        newScaredTimes holds the number of moves that each ghost will remain
+        scared because of Pacman having eaten a power pellet.
+
+        Print out these variables to see what you're getting, then combine them
+        to create a masterful evaluation function.
+        """
+        # Useful information you can extract from a GameState (pacman.py)
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        newPos = successorGameState.getPacmanPosition()
+        newFood = successorGameState.getFood()
+        newGhostStates = successorGameState.getGhostStates()
+        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+        ghost_dist_diff = 0
+        dist_from_ghost = 0
+        for index, newGhostState in enumerate(newGhostStates):
+            dist_from_ghost = manhattanDistance(newPos, newGhostState.getPosition())
+            if (dist_from_ghost <= 1):
+                return float("-inf")
+
+            ########################################################################
+            # CPSC 481 - attempt to make PacMan less likely to stand still
+            ########################################################################
+            pacman_position = currentGameState.getPacmanPosition()
+            ghost_position = currentGameState.getGhostStates()[index].getPosition()
+            distance = manhattanDistance(ghost_position, pacman_position)
+            ghost_position_next = newGhostState.getPosition()
+            distance_next = manhattanDistance(ghost_position_next, newPos)
+            if currentGameState.getGhostStates()[index].scaredTimer <= 0:  # if the ghost is not scared...
+                if distance_next < distance:  # if the ghost is now closer to pacman...
+                    ghost_dist_diff -= 99
+                else:
+                    ghost_dist_diff += 120
+            else:  # ghost is scared..
+                if distance_next < distance:
+                    ghost_dist_diff += 99
+                else:
+                    ghost_dist_diff -= 120
+            ########################################################################
+
+        food_available = []
+        food_data = []
+        food_distance = 0
+
+        for i in range(0, newFood.width):
+            for j in range(0, newFood.height):
+                if (newFood[i][j] == True):
+                    food_location = (i, j)
+                    food_available.append(food_location)
+
+        successor_food_count = len(food_available)
+
+        if successor_food_count == 0:
+            return float("inf")
+
+        for food_loc in food_available:
+            food_distance = manhattanDistance(newPos, food_loc)
+            food_data.append(food_distance)
+
+        closest_food_dist = min(food_data)
+
+        current_food_count = currentGameState.getNumFood()
+
+        if (successor_food_count < current_food_count):
+            return 1000
+        else:
+            return ghost_dist_diff
+
+        score = 0.0
+        score = (10 * (1 / closest_food_dist))
+        return score
 
