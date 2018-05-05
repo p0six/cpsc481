@@ -394,6 +394,7 @@ def betterEvaluationFunction(currentGameState, action):
     """
       Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
       evaluation function (question 5).
+      DESCRIPTION: <write something here so we know what you did>
 
       DESCRIPTION: <write something here so we know what you did>
     """
@@ -541,7 +542,6 @@ class CPSC481Agent(Agent):
             return 1000
         else:
             return ghost_dist_diff
-
         score = 0.0
         score = (10 * (1 / closest_food_dist))
         return score

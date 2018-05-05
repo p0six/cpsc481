@@ -253,61 +253,62 @@ def nullHeuristic(state, problem=None):
 def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first, as a ghost."""
 
-    loc_pqueue = PriorityQueue()
-    visited_node = {}
-    parent_child_map = {}
-    direction_list = []
+    localpriorityqueue = PriorityQueue()
+    closed_node = {}
+    prev__next_map = {}
+    ghostpath = []
     path_cost = 0
-    heuristic_value = 0
-    reverse = Actions.reverseDirection(gameState.getGhostState(ghostIndex).configuration.direction)
+    heuristic_val = 0
+    inverse = Actions.reverseDirection(gameState.getGhostState(ghostIndex).configuration.direction)
 
     start_node = problem.getStartState()
-    parent_child_map[start_node] = []
-    loc_pqueue.push(start_node, heuristic_value)
+    prev__next_map[start_node] = []
+    localpriorityqueue.push(start_node, heuristic_val)
 
     def traverse_path(parent_node):
         temp = 0
         while True:
-            map_row = parent_child_map[parent_node]
+            map_row = prev__next_map[parent_node]
             if (len(map_row) == 4):  # map_row[parent_node, direction, gvalue, fvalue]
                 parent_node = map_row[0]
                 direction = map_row[1]
-                direction_list.append(direction)
+                ghostpath.append(direction)
                 temp = temp + 1
             else:
                 break
-        return direction_list
+        return ghostpath
 
-    while (loc_pqueue.isEmpty() == False):
+    while (localpriorityqueue.isEmpty() == False):
 
-        parent_node = loc_pqueue.pop()
+        prev_node = localpriorityqueue.pop()
 
-        if (parent_node != problem.getStartState()):
-            path_cost = parent_child_map[parent_node][2]
 
-        if (problem.isGoalState(parent_node)):
-            pathlist = traverse_path(parent_node)
+        if (prev_node != problem.getStartState()):
+            path_cost = prev__next_map[prev_node][2]
+
+        if (problem.isGoalState(prev_node)):
+            pathlist = traverse_path(prev_node)
             pathlist.reverse()
             return pathlist
 
-        elif (visited_node.has_key(parent_node) == False):
-            visited_node[parent_node] = []
-            sucessor_list = problem.getSuccessors(parent_node)
-            no_of_child = len(sucessor_list)
-            if (no_of_child > 0):
+        elif (closed_node.has_key(prev_node) == False):
+            closed_node[prev_node] = []
+            sucessor_list = problem.getSuccessors(prev_node)
+            num_of_child = len(sucessor_list)
+            if (num_of_child > 0):
                 temp = 0
-                while (temp < no_of_child):
-                    child_nodes = sucessor_list[temp]
-                    child_state = child_nodes[0];
-                    child_action = child_nodes[1];
+                while (temp < num_of_child):
+                    previous_nodes = sucessor_list[temp]
+                    state_of_child = previous_nodes[0];
+                    child_action = previous_nodes[1];
 
                     ######################################################################
                     # CPSC 481 - make cost of illegal move very high so it's never chosen
                     ######################################################################
-                    if child_action == reverse and parent_node == start_node:
-                        child_cost = 99999999999999
+                    if child_action == inverse and prev_node == start_node:
+                        cost_of_next = 99999999999999
                     else:
-                        child_cost = child_nodes[2];
+                        cost_of_next = previous_nodes[2];
                     ################################################################################
                     # CPSC 481 - make ghosts attempt to avoid PacMan if they're able to when scared
                     ################################################################################
@@ -320,26 +321,25 @@ def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
                         pacman_position_next = Actions.getSuccessor(pacman_position, Directions.STOP)
                         distance_next = manhattanDistance(ghost_position_next, pacman_position_next)
                         if distance_next < distance:
-                            child_cost += 99999
+                            cost_of_next += 99999
                         elif distance_next == distance:
-                            child_cost += 99
+                            cost_of_next += 99
                     ################################################################################
 
-                    heuristic_value = heuristic(child_state, problem)
-                    gvalue = path_cost + child_cost
-                    fvalue = gvalue + heuristic_value
+                    heuristic_val = heuristic(state_of_child, problem)
+                    gvalue = path_cost + cost_of_next
+                    fvalue = gvalue + heuristic_val
 
-                    if (visited_node.has_key(child_state) == False):
-                        loc_pqueue.push(child_state, fvalue)
-                    if (parent_child_map.has_key(child_state) == False):
-                        parent_child_map[child_state] = [parent_node, child_action, gvalue, fvalue]
+                    if (closed_node.has_key(state_of_child) == False):
+                        localpriorityqueue.push(state_of_child, fvalue)
+                    if (prev__next_map.has_key(state_of_child) == False):
+                        prev__next_map[state_of_child] = [prev_node, child_action, gvalue, fvalue]
                     else:
-                        if (child_state != start_node):
-                            stored_fvalue = parent_child_map[child_state][3]
+                        if (state_of_child != start_node):
+                            stored_fvalue = prev__next_map[state_of_child][3]
                             if (stored_fvalue > fvalue):
-                                parent_child_map[child_state] = [parent_node, child_action, gvalue, fvalue]
+                                prev__next_map[state_of_child] = [prev_node, child_action, gvalue, fvalue]
                     temp = temp + 1
-
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
