@@ -642,6 +642,12 @@ def mazeDistance(point1, point2, gameState):
 ############################################################################################################
 # CPSC 481 - mazeDirections Provides a list of directions used within ghostAgents.py to draw path to target
 ############################################################################################################
+def originalGhostHeuristic(position, problem):
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    ghost_position = position
+    pacman_position = problem.goal
+    return abs(ghost_position[0] - pacman_position[0]) + abs(ghost_position[1] - pacman_position[1])
+
 def mazeDirections(point1, point2, gameState, index):
     x1, y1 = point1
     x2, y2 = point2
@@ -649,5 +655,5 @@ def mazeDirections(point1, point2, gameState, index):
     assert not walls[x1][y1], 'point1 is a wall: ' + str(point1)
     assert not walls[x2][y2], 'point2 is a wall: ' + str(point2)
     prob = PositionSearchProblem(gameState, start=point1, goal=point2, warn=False, visualize=False)
-    return search.aStarSearchGhost(prob, gameState, index, manhattanHeuristic)
+    return search.aStarSearchGhost(prob, gameState, index, originalGhostHeuristic)
 ############################################################################################################
