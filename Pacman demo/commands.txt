@@ -34,7 +34,7 @@ python pacman.py -l pacmanClassic --blinky  -z .5 -d -p CPSC481Agent
 python pacman.py -l pacmanClassic -o -z .5 -p CPSC481Agent
 
 # Provide some weights to start reinforcementLearning from... play 100 games quitely with CPSC481Agent against Blinky
-python pacman.py --blinky -d -p CPSC481Agent  --reinforcementLearning 1,1,1,1,1,1,1  -l smallClassic -n 100 -q
+python pacman.py --blinky -p CPSC481Agent --reinforcementLearning 1,1,1,1,1,1,1  -l smallClassic -n 100 -q
 ########################################################################################################################
 # MacOS: Python 2.7.15rc1 corrects a performance bug, and bug where game window does not open directly to foreground
 /Library/Frameworks/Python.framework/Versions/2.7/bin/python pacman.py -z .5 -l pacmanClassic --blinky -d
