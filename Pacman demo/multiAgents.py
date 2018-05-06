@@ -455,16 +455,84 @@ class CPSC481Agent(Agent):
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
-        # print bestScore
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        # print bestIndices
         chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
+        # CPSC 481 - Call a function that adjust weights....
+        self.adjustWeights(gameState, legalMoves[chosenIndex], bestScore)
+
         return legalMoves[chosenIndex]
 
+    def adjustWeights(self, currentGameState, action, score):
+        import __main__
+        if __main__.__dict__['_reinforcementLearning']:
+            weights = __main__.__dict__['_weights']
+
+            # I need to check whether this particular state is the first state in the game....
+            ghostDistanceValue = self.ghostDistance(currentGameState, action)
+            powerPelletValue = self.powerPellet(currentGameState, action)
+            nearerToFoodValue = self.nearerToFood(currentGameState, action)
+            scoreDifferenceValue = self.scoreDifference(currentGameState, action)
+            foodEatenValue = self.foodEaten(currentGameState, action)
+            scoreChangeValue = self.scoreChange(currentGameState, action)
+            didGameLoseValue = self.didGameLose(currentGameState, action)
+            nextFeatureValues = [ghostDistanceValue, powerPelletValue, nearerToFoodValue, scoreDifferenceValue, foodEatenValue, scoreChangeValue, didGameLoseValue]
+
+
+            if len(currentGameState.explored) == 0:  # This is the first state of the game... set initial values.
+                __main__.__dict__['_featureValues'] = nextFeatureValues  # this may or may not ever happen...
+            else:  # We have made at least one move.. we can compare featureValues...
+                # I need to check in __main__.__dict__['_featureValues'] to see if it exists....
+                if '_featureValues' in __main__.__dict__:
+                    currentFeatureValues = __main__.__dict__['_featureValues']
+
+                    newqValue = 0
+                    for index, nextFeatureValue in enumerate(nextFeatureValues):
+                        newqValue += weights[index] * nextFeatureValue
+                    # print newqValue
+
+                    oldqValue = 0
+                    for index, currentFeatureValue in enumerate(currentFeatureValues):
+                        oldqValue += weights[index] * currentFeatureValue
+                    # print oldqValue
+
+                else:  # Derp..
+                    currentFeatureValues = nextFeatureValues  # why not... a hack for sure, tho
+
+                # iterate through both featureValues, adjust weight of feature with biggest difference...
+                differences = []
+                for index, currentFeatureValue in enumerate(currentFeatureValues):
+                    currentFeatureValue *= weights[index]
+                    nextFeatureValue = nextFeatureValues[index] * weights[index]
+                    differences.append(abs(nextFeatureValue - currentFeatureValue))  # if > 0, new state is better
+
+                # Determine which feature is responsible for the biggest change in value from current to next. Blame it.
+                biggestDifference = max(differences)
+                biggestDifferenceIndices = [index for index in range(len(differences)) if differences[index] == biggestDifference]
+                chosenIndex = random.choice(biggestDifferenceIndices)  # Pick randomly among the best
+
+                ### THIS THING IS SUSPECT
+                #
+                #
+                # if nextFeatureValues[chosenIndex] * weights[chosenIndex] - currentFeatureValues[chosenIndex] * weights[chosenIndex] > 0:
+                if nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] > 0:
+                    weights[chosenIndex] += .1
+                # elif nextFeatureValues[chosenIndex] * weights[chosenIndex] - currentFeatureValues[chosenIndex] * weights[chosenIndex] < 0:
+                elif nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] < 0:
+                    if weights[chosenIndex] >= .11:
+                        weights[chosenIndex] -= .1
+                #
+                #
+                ### THIS THING IS SUSPECT
+
+                __main__.__dict__['_weights'] = weights
+                __main__.__dict__['_featureValues'] = nextFeatureValues
+
     def evaluationFunction(self, currentGameState, action):
+        # inside of this function, we can determine which of each function returned the greatest value
+        # we then adjust the weight of that particular function, incrementing the value if pos, decrementing if neg
         """
         CPSC 481 - Modified evaluation function...
         Design a better evaluation function here.
@@ -490,79 +558,152 @@ class CPSC481Agent(Agent):
             currentGameState.weights = __main__.__dict__['_weights']
         #################################################################
 
+
+        ########################################################################
+        # CPSC 481 - we can now control weights here... if we wanna
+        ########################################################################
+        if __main__.__dict__['_reinforcementLearning']:
+            __main__.__dict__['_weights'] = currentGameState.weights
+        ########################################################################
+
+        weights = currentGameState.weights
+
+        ghostDistanceValue = self.ghostDistance(currentGameState, action)
+        powerPelletValue = self.powerPellet(currentGameState, action)
+        nearerToFoodValue = self.nearerToFood(currentGameState, action)
+        scoreDifferenceValue = self.scoreDifference(currentGameState, action)
+        foodEatenValue = self.foodEaten(currentGameState, action)
+        scoreChangeValue = self.scoreChange(currentGameState, action)
+        didGameLoseValue = self.didGameLose(currentGameState, action)
+        nextFeatureValues = [ghostDistanceValue, powerPelletValue, nearerToFoodValue, scoreDifferenceValue, foodEatenValue, scoreChangeValue, didGameLoseValue]
+
+        qValue = 0
+        for index, nextFeatureValue in enumerate(nextFeatureValues):
+            qValue += weights[index] * nextFeatureValue
+        return qValue
+
+    def ghostDistance(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
         ghost_dist_diff = 0
-        dist_from_ghost = 0
         for index, newGhostState in enumerate(newGhostStates):
             dist_from_ghost = manhattanDistance(newPos, newGhostState.getPosition())
-            if (dist_from_ghost <= 1):
-                return float("-inf")
 
-            ########################################################################
-            # CPSC 481 - attempt to make PacMan less likely to stand still
-            ########################################################################
             pacman_position = currentGameState.getPacmanPosition()
             ghost_position = currentGameState.getGhostStates()[index].getPosition()
             distance = manhattanDistance(ghost_position, pacman_position)
             ghost_position_next = newGhostState.getPosition()
             distance_next = manhattanDistance(ghost_position_next, newPos)
             if currentGameState.getGhostStates()[index].scaredTimer <= 0:  # if the ghost is not scared...
+                if dist_from_ghost <= 1:
+                    return -1
+                    # return float("-inf")
                 if distance_next < distance:  # if the ghost is now closer to pacman...
-                    ghost_dist_diff -= 99
+                    ghost_dist_diff -= 1
+                elif distance_next == distance:
+                    ghost_dist_diff -= 0.5
                 else:
-                    ghost_dist_diff += 120
+                    ghost_dist_diff += 1
             else:  # ghost is scared..
                 if distance_next < distance:
-                    ghost_dist_diff += 99
+                    ghost_dist_diff += 1
+                elif distance_next == distance:
+                    ghost_dist_diff -= 0.5
                 else:
-                    ghost_dist_diff -= 120
-            ########################################################################
+                    ghost_dist_diff -= 1
 
-        food_available = []
+        # return ghost_dist_diff
+        if ghost_dist_diff < 0:
+            return -1
+        elif ghost_dist_diff == 0:
+            return 0.5
+        else:
+            return 1
+
+    def powerPellet(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        curGhostStates = currentGameState.getGhostStates()
+        newGhostStates = successorGameState.getGhostStates()
+        curScaredTimes = [ghostState.scaredTimer for ghostState in curGhostStates]
+        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+        if newScaredTimes > curScaredTimes:
+            return 2
+        else:
+            return 1
+
+
+    def nearerToFood(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        currentDistanceToFood = self.distanceToNearestFood(currentGameState)
+        successorDistanceToFood = self.distanceToNearestFood(successorGameState)
+
+        if successorDistanceToFood < currentDistanceToFood:
+            return 2
+        elif successorDistanceToFood > currentDistanceToFood:
+            return -1
+        else:
+            return 0.5
+
+    def distanceToNearestFood(self, currentGameState):
+        curPos = currentGameState.getPacmanPosition()
+        curFood = currentGameState.getFood()
+        new_food_available = []
         food_data = []
-        food_distance = 0
 
-        ########################################################################
-        # CPSC 481 - we can now control weights...
-        ########################################################################
-        if __main__.__dict__['_reinforcementLearning']:
-            currentGameState.weights[0] += 1
-            currentGameState.weights[1] += 1
-            currentGameState.weights[2] += 1
-            currentGameState.weights[3] += 1
-            __main__.__dict__['_weights'] = currentGameState.weights
-        ########################################################################
-
-        for i in range(0, newFood.width):
-            for j in range(0, newFood.height):
-                if (newFood[i][j] == True):
+        for i in range(0, curFood.width):
+            for j in range(0, curFood.height):
+                if (curFood[i][j] == True):
                     food_location = (i, j)
-                    food_available.append(food_location)
+                    new_food_available.append(food_location)
 
-        successor_food_count = len(food_available)
+        successor_food_count = len(new_food_available)
 
         if successor_food_count == 0:
-            return float("inf")
+            # return float("inf")
+            return 999999
 
-        for food_loc in food_available:
-            food_distance = manhattanDistance(newPos, food_loc)
+        for food_loc in new_food_available:
+            food_distance = manhattanDistance(curPos, food_loc)
             food_data.append(food_distance)
+        return min(food_data)
 
-        closest_food_dist = min(food_data)
-
-        current_food_count = currentGameState.getNumFood()
-
-        if (successor_food_count < current_food_count):
-            return 1000
+    def scoreDifference(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        if currentGameState.data.score < successorGameState.data.score:
+            return 1
         else:
-            return ghost_dist_diff
+            return -1
 
-        score = 0.0
-        score = (10 * (1 / closest_food_dist))
-        return score
+    def foodEaten(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        successor_food_count = successorGameState.getNumFood()
+        current_food_count = currentGameState.getNumFood()
+        if (successor_food_count < current_food_count):
+            return 1
+        else:
+            return .5
+
+    def ghostHeadingTowardsMe(self, currentGameState, action):
+        # Check whether or not a ghost I'm maybe moving closer to is headed in my direction..
+        return 1
+
+    def scoreChange(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        if successorGameState.data.scoreChange > 0:
+            return 1
+        else:
+            return .5
+
+    def didGameLose(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        if successorGameState.isLose():
+            # return float("-inf")
+            return .5
+        elif successorGameState.isWin():
+            return 2
+        else:
+            return 1
+
 

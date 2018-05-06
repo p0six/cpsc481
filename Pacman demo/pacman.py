@@ -727,16 +727,11 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
         ######################################
         if __main__.__dict__['_reinforcementLearning']:
             weights = __main__.__dict__['_weights']
-            sys.stdout.write('pacman.runGames() previous weights = ')
+            sys.stdout.write('pacman.runGames() weights = ')
             print weights
             game = rules.newReinforcementGame(layout, pacman, ghosts, gameDisplay, weights, beQuiet, catchExceptions)
             updatedWeights = game.run()  # decide whether updated weights should be within game.run() or elsewhere..
-
-            # Manipulation of 'updatedWeights' could happen here, but probably should happen between states, not games
-
             game.state.weights = updatedWeights
-            sys.stdout.write('pacman.runGames() new weights = ')
-            print game.state.weights
             __main__.__dict__['_weights'] = updatedWeights
         else:
             game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
