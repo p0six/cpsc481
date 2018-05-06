@@ -531,42 +531,12 @@ class CPSC481Agent(Agent):
                 __main__.__dict__['_featureValues'] = nextFeatureValues
 
     def evaluationFunction(self, currentGameState, action):
-        # inside of this function, we can determine which of each function returned the greatest value
-        # we then adjust the weight of that particular function, incrementing the value if pos, decrementing if neg
-        """
-        CPSC 481 - Modified evaluation function...
-        Design a better evaluation function here.
-
-        The evaluation function takes in the current and proposed successor
-        GameStates (pacman.py) and returns a number, where higher numbers are better.
-
-        The code below extracts some useful information from the state, like the
-        remaining food (newFood) and Pacman position after moving (newPos).
-        newScaredTimes holds the number of moves that each ghost will remain
-        scared because of Pacman having eaten a power pellet.
-
-        Print out these variables to see what you're getting, then combine them
-        to create a masterful evaluation function.
-        """
-        # Useful information you can extract from a GameState (pacman.py)
-
         #################################################################
         # CPSC 481 - we bring in some weights....
         #################################################################
         import __main__
         if __main__.__dict__['_reinforcementLearning']:
             currentGameState.weights = __main__.__dict__['_weights']
-        #################################################################
-
-
-        ########################################################################
-        # CPSC 481 - we can now control weights here... if we wanna
-        ########################################################################
-        if __main__.__dict__['_reinforcementLearning']:
-            __main__.__dict__['_weights'] = currentGameState.weights
-        ########################################################################
-
-        weights = currentGameState.weights
 
         ghostDistanceValue = self.ghostDistance(currentGameState, action)
         powerPelletValue = self.powerPellet(currentGameState, action)
@@ -579,7 +549,7 @@ class CPSC481Agent(Agent):
 
         qValue = 0
         for index, nextFeatureValue in enumerate(nextFeatureValues):
-            qValue += weights[index] * nextFeatureValue
+            qValue += currentGameState.weights[index] * nextFeatureValue
         return qValue
 
     def ghostDistance(self, currentGameState, action):
@@ -598,19 +568,14 @@ class CPSC481Agent(Agent):
             if currentGameState.getGhostStates()[index].scaredTimer <= 0:  # if the ghost is not scared...
                 if dist_from_ghost <= 1:
                     return -1
-                    # return float("-inf")
                 if distance_next < distance:  # if the ghost is now closer to pacman...
                     ghost_dist_diff -= 1
-                elif distance_next == distance:
-                    ghost_dist_diff -= 0.5
-                else:
+                elif distance_next > distance:
                     ghost_dist_diff += 1
             else:  # ghost is scared..
                 if distance_next < distance:
                     ghost_dist_diff += 1
-                elif distance_next == distance:
-                    ghost_dist_diff -= 0.5
-                else:
+                elif distance_next > distance:
                     ghost_dist_diff -= 1
 
         # return ghost_dist_diff
@@ -638,13 +603,12 @@ class CPSC481Agent(Agent):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         currentDistanceToFood = self.distanceToNearestFood(currentGameState)
         successorDistanceToFood = self.distanceToNearestFood(successorGameState)
-
-        if successorDistanceToFood < currentDistanceToFood:
-            return 2
+        if successorDistanceToFood <= currentDistanceToFood:
+            return 1
         elif successorDistanceToFood > currentDistanceToFood:
-            return -1
-        else:
-            return 0.5
+            # if we make distance to food more important... pacman dies more often because he
+            # return 0.9
+            return 0.1
 
     def distanceToNearestFood(self, currentGameState):
         curPos = currentGameState.getPacmanPosition()
@@ -661,8 +625,7 @@ class CPSC481Agent(Agent):
         successor_food_count = len(new_food_available)
 
         if successor_food_count == 0:
-            # return float("inf")
-            return 999999
+            return float("inf")
 
         for food_loc in new_food_available:
             food_distance = manhattanDistance(curPos, food_loc)
@@ -681,9 +644,10 @@ class CPSC481Agent(Agent):
         successor_food_count = successorGameState.getNumFood()
         current_food_count = currentGameState.getNumFood()
         if (successor_food_count < current_food_count):
-            return 1
+            return 1.2
         else:
-            return .5
+            # return 1
+            return 0.9
 
     def ghostHeadingTowardsMe(self, currentGameState, action):
         # Check whether or not a ghost I'm maybe moving closer to is headed in my direction..
@@ -694,13 +658,13 @@ class CPSC481Agent(Agent):
         if successorGameState.data.scoreChange > 0:
             return 1
         else:
-            return .5
+            return 0.5
 
     def didGameLose(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         if successorGameState.isLose():
             # return float("-inf")
-            return .5
+            return -1
         elif successorGameState.isWin():
             return 2
         else:
