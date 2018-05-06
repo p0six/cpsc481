@@ -458,14 +458,12 @@ class CPSC481Agent(Agent):
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
-        "Add more of your code here if you want to"
-
         # CPSC 481 - Call a function that adjust weights....
-        self.adjustWeights(gameState, legalMoves[chosenIndex], bestScore)
+        self.adjustWeights(gameState, legalMoves[chosenIndex])
 
         return legalMoves[chosenIndex]
 
-    def adjustWeights(self, currentGameState, action, score):
+    def adjustWeights(self, currentGameState, action):
         import __main__
         if __main__.__dict__['_reinforcementLearning']:
             weights = __main__.__dict__['_weights']
@@ -480,7 +478,6 @@ class CPSC481Agent(Agent):
             didGameLoseValue = self.didGameLose(currentGameState, action)
             nextFeatureValues = [ghostDistanceValue, powerPelletValue, nearerToFoodValue, scoreDifferenceValue, foodEatenValue, scoreChangeValue, didGameLoseValue]
 
-
             if len(currentGameState.explored) == 0:  # This is the first state of the game... set initial values.
                 __main__.__dict__['_featureValues'] = nextFeatureValues  # this may or may not ever happen...
             else:  # We have made at least one move.. we can compare featureValues...
@@ -488,20 +485,20 @@ class CPSC481Agent(Agent):
                 if '_featureValues' in __main__.__dict__:
                     currentFeatureValues = __main__.__dict__['_featureValues']
 
+                    # Could be used to compare old qValues to new qValues to determine if the change was an upgrade
+                    # TODO: Currently not used...
                     newqValue = 0
                     for index, nextFeatureValue in enumerate(nextFeatureValues):
                         newqValue += weights[index] * nextFeatureValue
-                    # print newqValue
 
                     oldqValue = 0
                     for index, currentFeatureValue in enumerate(currentFeatureValues):
                         oldqValue += weights[index] * currentFeatureValue
-                    # print oldqValue
 
-                else:  # Derp..
-                    currentFeatureValues = nextFeatureValues  # why not... a hack for sure, tho
+                else:
+                    currentFeatureValues = nextFeatureValues  # condition occurs once. initialization happens below
 
-                # iterate through both featureValues, adjust weight of feature with biggest difference...
+                # Iterate through both featureValues, adjust weight of feature with biggest difference...
                 differences = []
                 for index, currentFeatureValue in enumerate(currentFeatureValues):
                     currentFeatureValue *= weights[index]
@@ -513,19 +510,12 @@ class CPSC481Agent(Agent):
                 biggestDifferenceIndices = [index for index in range(len(differences)) if differences[index] == biggestDifference]
                 chosenIndex = random.choice(biggestDifferenceIndices)  # Pick randomly among the best
 
-                ### THIS THING IS SUSPECT
-                #
-                #
-                # if nextFeatureValues[chosenIndex] * weights[chosenIndex] - currentFeatureValues[chosenIndex] * weights[chosenIndex] > 0:
+                # Make a change to the weight responsible for the biggest difference in qValue
                 if nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] > 0:
                     weights[chosenIndex] += .1
-                # elif nextFeatureValues[chosenIndex] * weights[chosenIndex] - currentFeatureValues[chosenIndex] * weights[chosenIndex] < 0:
                 elif nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] < 0:
                     if weights[chosenIndex] >= .11:
                         weights[chosenIndex] -= .1
-                #
-                #
-                ### THIS THING IS SUSPECT
 
                 __main__.__dict__['_weights'] = weights
                 __main__.__dict__['_featureValues'] = nextFeatureValues
@@ -578,7 +568,6 @@ class CPSC481Agent(Agent):
                 elif distance_next > distance:
                     ghost_dist_diff -= 1
 
-        # return ghost_dist_diff
         if ghost_dist_diff < 0:
             return -1
         elif ghost_dist_diff == 0:
@@ -598,7 +587,6 @@ class CPSC481Agent(Agent):
         else:
             return 1
 
-
     def nearerToFood(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         currentDistanceToFood = self.distanceToNearestFood(currentGameState)
@@ -606,8 +594,6 @@ class CPSC481Agent(Agent):
         if successorDistanceToFood <= currentDistanceToFood:
             return 1
         elif successorDistanceToFood > currentDistanceToFood:
-            # if we make distance to food more important... pacman dies more often because he
-            # return 0.9
             return 0.1
 
     def distanceToNearestFood(self, currentGameState):
@@ -646,11 +632,10 @@ class CPSC481Agent(Agent):
         if (successor_food_count < current_food_count):
             return 1.2
         else:
-            # return 1
             return 0.9
 
     def ghostHeadingTowardsMe(self, currentGameState, action):
-        # Check whether or not a ghost I'm maybe moving closer to is headed in my direction..
+        # TODO: Check whether or not a ghost I'm maybe moving closer to is headed in my direction..
         return 1
 
     def scoreChange(self, currentGameState, action):
@@ -663,7 +648,6 @@ class CPSC481Agent(Agent):
     def didGameLose(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         if successorGameState.isLose():
-            # return float("-inf")
             return -1
         elif successorGameState.isWin():
             return 2

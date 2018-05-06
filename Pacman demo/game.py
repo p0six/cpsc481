@@ -383,19 +383,6 @@ class GameStateData:
             self.layout = prevState.layout
             self._eaten = prevState._eaten
             self.score = prevState.score
-            ################################
-            # CPSC 481 - is this bullshit needed?!
-            ################################
-            self.weightA = prevState.weightA
-            self.weightB = prevState.weightB
-            self.weightC = prevState.weightC
-            self.weightD = prevState.weightD
-        else:
-            self.weightA = 1
-            self.weightB = 1
-            self.weightC = 1
-            self.weightD = 1
-            ################################
 
         self._foodEaten = None
         self._foodAdded = None
@@ -581,13 +568,6 @@ class Game:
         """
         Main control loop for game play.
         """
-
-        # if hasattr(self.state, 'weights'):
-            # print('I have self.state.weights')
-        # else:
-            # print('i do not have self.state.weights')
-            # self.state.weights = [1, 2, 3, 4]
-
         self.display.initialize(self.state.data)
         self.numMoves = 0
 
@@ -711,11 +691,11 @@ class Game:
 
 
             #########################################################
-            # CPSC 481
+            # CPSC 481 - Before we overwrite our state, copy weights
             #########################################################
             import __main__
-            if __main__.__dict__['_reinforcementLearning']:  # CPSC 481
-                weights = self.state.weights  # CPSC 481
+            if __main__.__dict__['_reinforcementLearning']:
+                weights = self.state.weights
             #########################################################
 
             if self.catchExceptions:
@@ -730,10 +710,10 @@ class Game:
                 self.state = self.state.generateSuccessor( agentIndex, action )
 
             #########################################################
-            # CPSC 481
+            # CPSC 481 - Apply last set of weights to successor
             #########################################################
-            if __main__.__dict__['_reinforcementLearning']:  # CPSC 481
-                self.state.weights = weights # CPSC 481
+            if __main__.__dict__['_reinforcementLearning']:
+                self.state.weights = weights
             #########################################################
 
             # Change the display
@@ -766,8 +746,8 @@ class Game:
                     return
         self.display.finish()
 
-        #######################################
-        # CPSC 481 - Attempting to do work - we lose self.state.weights somewhere above...
-        #######################################
+        ########################################################################################
+        # CPSC 481 - Returns last weights, or a default, to the caller for use in the next game
+        ########################################################################################
         return getattr(self.state, 'weights', [1, 1, 1, 1])
-        #######################################
+        ########################################################################################
