@@ -418,7 +418,14 @@ class GhostRules:
 
         legal = GhostRules.getLegalActions( state, ghostIndex )
         if action not in legal:
-            raise Exception("Illegal ghost action " + str(action) + ', ghostIndex: ' + str(ghostIndex))  # CPSC 481
+            pacman_state = state.getPacmanState()
+            ghost_state = state.getGhostState(ghostIndex)
+            raise Exception("Illegal ghost action " + str(action) +
+                            ", ghostDirection: "+ ghost_state.getDirection() +
+                            ", ghostIndex: " + str(ghostIndex) +
+                            ", ghostPosition: " + str(state.getGhostPosition(ghostIndex)) +
+                            ", pacmanPosition: " + str(state.getPacmanPosition()) +
+                            ", pacmanDirection: " + pacman_state.getDirection())  # CPSC 481
 
         ghostState = state.data.agentStates[ghostIndex]
         speed = GhostRules.GHOST_SPEED
