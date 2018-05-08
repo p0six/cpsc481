@@ -24,7 +24,10 @@ python pacman.py -l bigSearch -p ApproximateSearchAgent -z .5 -q
 ########################################################################################################################
 # CPSC 481 - Commands that initialize our Ghosts...
 ########################################################################################################################
-# Trigger our Ghost Agents... Blinky / Pinky / Inky / Clyde, using the pacmanClassic map we created.
+# PAC-MAN before we made any changes...
+python pacman.py
+
+# Replace map with classic PAC-MAN map and trigger our new Ghost Agents... Blinky / Pinky / Inky / Clyde
 python pacman.py -l pacmanClassic -o
 
 # Allow PacMan to play against Blinky and draw Blinky's intended path....

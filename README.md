@@ -23,7 +23,7 @@ more specifically after each and every move.
 --------------------------
 Files Modified 
 --------------------------
-###commands.txt
+####commands.txt
 Created commands that initialize our Ghosts in the game. This document contains example
  executions of the program and how we are running the game with options that we have created. 
  The game layout is the classic PAC-MAN board minus the warp pipes. Ghost AI used our classic 
@@ -50,7 +50,7 @@ Created commands that initialize our Ghosts in the game. This document contains 
     python pacman.py -o -p CPSC481Agent --reinforcementLearning 1,1,1,1,1,1,1 -l pacmanClassic
 
 
-###ghostAngents.py
+#####ghostAngents.py
 Created separate classes for each AI ghost to implement the classic ghost AIs from the famous PAC-MAN game. 
 These ghosts currently use a state space search (BFS) to minimize the distance between PAC-MAN and the ghost 
 itself using all legal paths. We plan to replace BFS with A* in a future iteration. Within each ghost class will 
@@ -63,41 +63,41 @@ would be the final ghost to implement with BFS. Will be a modified Blinky which 
 until it is within 8 blocks away at which point it will retreat to the corner until it is no longer 8 blocks
 from PAC-MAN, at which point it immediately begins chasing PAC-MAN again.
 
-###graphicsDisplay.py
+####graphicsDisplay.py
 Modified color of ghosts to better match the original PAC-MAN game.
 
-###pacman.py
+####pacman.py
 This file controls the creation of the game model. We have modified it to create our ghost classes with 
 appropriate AI modeled after the original PAC-MAN ghost behaviors, triggered using the "-o" command line argument.
 We added a flag -d to display the paths ghosts intended targets. Also, we made it so you can play against each on or 
 as many of the ghosts that you would like to play against being specified by their names like --blinky or --pinky. Lastly,
 we added --reinforcementLearning in with a set of 5 weights.
 
-###searchAgents.py
+####searchAgents.py
 Added a function that returns the set of directions from start location (x1,y1) to end location (x2, y2). 
 This is converted by the ghost class into a series of cell coordinates representing a path that is then drawn
  onto the screen displaying the ghosts intended path towards its target.
 
-###util.py
+####util.py
 Implemented the Euclidean distance equation to be used by our ghost AI search algorithms.
  We may or may not go forward with euclidean distance in our final version.
  
-###multiagents.py
+####multiagents.py
 We added cpsc481 agent to drive the behavior of Pacman to deal with a set of weights which correspond to specific
 Qlearning features. These set of weights dynamically change the behavior of Pacmans decisions or turns based 
 on the location of the ghosts, food, power pellets, and more. 
 
-###game.py
+####game.py
 Modified to allow for the setting and the getting of weights which are being used in reinforcement learning. Essentially, 
 it was modified to verify that the weights are always kept on the game state. These changes are allow being made when the 
 --reinforcementLearning command is being set or called in the terminal. 
 
-###search.py 
+####search.py 
 We created the A* search ghost function which is used for path finding 
 
 --------------------------
 Files Created
 --------------------------
-###pacmanClassic.lay
+####pacmanClassic.lay
 This is a layout file built to match the classic PAC-MAN map. 
 We created this as a way to make this version of PAC-MAN to feel more like the original.
