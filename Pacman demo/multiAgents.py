@@ -460,7 +460,10 @@ class CPSC481Agent(Agent):
         chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         # CPSC 481 - Call a function that adjust weights....
-        self.adjustWeights(gameState, legalMoves[chosenIndex])
+        import __main__
+        if __main__.__dict__['_reinforcementLearning']:
+            gameState.weights = __main__.__dict__['_weights']
+            self.adjustWeights(gameState, legalMoves[chosenIndex])
 
         return legalMoves[chosenIndex]
 
@@ -536,10 +539,6 @@ class CPSC481Agent(Agent):
         #################################################################
         # CPSC 481 - we bring in some weights....
         #################################################################
-        import __main__
-        if __main__.__dict__['_reinforcementLearning']:
-            currentGameState.weights = __main__.__dict__['_weights']
-
         ghostDistanceValue = self.ghostDistance(currentGameState, action)
         powerPelletValue = self.powerPellet(currentGameState, action)
         nearerToFoodValue = self.nearerToFood(currentGameState, action)
@@ -553,9 +552,16 @@ class CPSC481Agent(Agent):
         nextFeatureValues = [ghostDistanceToNearestValue, ghostDistanceValue, powerPelletValue, nearerToFoodValue,
                              foodEatenValue]
 
+        import __main__
         qValue = 0
-        for index, nextFeatureValue in enumerate(nextFeatureValues):
-            qValue += currentGameState.weights[index] * nextFeatureValue
+        if __main__.__dict__['_reinforcementLearning']:
+            currentGameState.weights = __main__.__dict__['_weights']
+            for index, nextFeatureValue in enumerate(nextFeatureValues):
+                qValue += currentGameState.weights[index] * nextFeatureValue
+        else:
+            for index, nextFeatureValue in enumerate(nextFeatureValues):
+                qValue += nextFeatureValue
+
         return qValue
 
     def ghostDistance(self, currentGameState, action):

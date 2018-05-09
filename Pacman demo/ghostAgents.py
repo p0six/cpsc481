@@ -206,19 +206,34 @@ class Pinky(GhostAgent):
         pacman_state = state.getPacmanState()
         pacman_direction = pacman_state.getDirection()
         pac_x, pac_y = state.getPacmanPosition()
+        offset_x, offset_y = Actions.getSuccessor((pac_x, pac_y), pacman_direction)
         # changes target to a max of four tiles away from pac-man in the direction pac-man is currently moving
-        for i in reversed(range(5)):
-            if pacman_direction == 'North' and (pac_y+i < walls.height and not walls[pac_x][pac_y+i]):
-                return pac_x, pac_y+i
-            elif pacman_direction == 'South' and (pac_y-i > 0 and not walls[pac_x][pac_y-i]):
-                return pac_x, pac_y-i
-            elif pacman_direction == 'East' and (pac_x+i < walls.width and not walls[pac_x+i][pac_y]):
-                return pac_x+i, pac_y
-            elif pacman_direction == 'West' and (pac_x-i > 0 and not walls[pac_x-i][pac_y]):
-                return pac_x-i, pac_y
+        for i in range(4):
+            if pacman_direction == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
+                pac_y += 1
+            elif pacman_direction == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
+                pac_y -= 1
+            elif pacman_direction == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y)):
+                pac_x += 1
+            elif pacman_direction == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
+                pac_x -= 1
             else:
-                continue
+                break
         return pac_x, pac_y
+
+        # Illegal ghost action East, ghostDirection: West, ghostIndex: 2, ghostPosition: (10.0, 5.0), pacmanPosition: (15, 5), pacmanDirection: West
+        # for i in reversed(range(5)):
+        #     if pacman_direction == 'North' and (pac_y+i < walls.height and not walls[pac_x][pac_y+i]):
+        #         return pac_x, int(math.ceil(pac_y+i))
+        #     elif pacman_direction == 'South' and (pac_y-i > 0 and not walls[pac_x][pac_y-i]):
+        #         return pac_x, int(math.floor(pac_y-i))
+        #     elif pacman_direction == 'East' and (pac_x+i < walls.width and not walls[pac_x+i][pac_y]):
+        #         return int(math.ceil(pac_x+i)), pac_y
+        #     elif pacman_direction == 'West' and (pac_x-i > 0 and not walls[pac_x-i][pac_y]):
+        #         return int(math.floor(pac_x-i)), pac_y
+        #     else:
+        #         continue
+        # return pac_x, pac_y
 
 class Inky(GhostAgent):
     # Inky needs Pac-Man's current tile/orientation and Blinky's current tile to calculate his final target.
@@ -287,23 +302,37 @@ class Inky(GhostAgent):
         pacman_direction = pacman_state.getDirection()
         pac_x, pac_y = state.getPacmanPosition()
         b_x, b_y = state.getGhostPosition(1)
+        offset_x, offset_y = Actions.getSuccessor((pac_x, pac_y), pacman_direction)
 
         # two tile offset from pac-man in the direction pac-man is currently moving
-        for i in reversed(range(3)):
-            if pacman_direction == 'North' and (pac_y + i < walls.height and not walls[pac_x][pac_y + i]):
-                pac_y += i
-                break
-            elif pacman_direction == 'South' and (pac_y - i > 0 and not walls[pac_x][pac_y - i]):
-                pac_y -= i
-                break
-            elif pacman_direction == 'East' and (pac_x + i < walls.width and not walls[pac_x + i][pac_y]):
-                pac_x += i
-                break
-            elif pacman_direction == 'West' and (pac_x - i > 0 and not walls[pac_x - i][pac_y]):
-                pac_x -= i
-                break
+        for i in range(2):
+            if pacman_direction == 'North' and not state.hasWall(int(offset_x), int(offset_y) + i):
+                pac_y += 1
+            elif pacman_direction == 'South' and not state.hasWall(int(offset_x), int(offset_y) - i):
+                pac_y -= 1
+            elif pacman_direction == 'East' and not state.hasWall(int(offset_x) + i, int(offset_y)):
+                pac_x += 1
+            elif pacman_direction == 'West' and not state.hasWall(int(offset_x) - i, int(offset_y)):
+                pac_x -= 1
             else:
-                continue
+                break
+
+        # throws illegal ghost action similar to pinky
+        # for i in reversed(range(3)):
+        #     if pacman_direction == 'North' and (pac_y + i < walls.height and not walls[pac_x][pac_y + i]):
+        #         pac_y = int(math.ceil(pac_y+i))
+        #         break
+        #     elif pacman_direction == 'South' and (pac_y - i > 0 and not walls[pac_x][pac_y - i]):
+        #         pac_y = int(math.floor(pac_y-i))
+        #         break
+        #     elif pacman_direction == 'East' and (pac_x + i < walls.width and not walls[pac_x + i][pac_y]):
+        #         pac_x = int(math.ceil(pac_x+i))
+        #         break
+        #     elif pacman_direction == 'West' and (pac_x - i > 0 and not walls[pac_x - i][pac_y]):
+        #         pac_x = int(math.floor(pac_x-i))
+        #         break
+        #     else:
+        #         continue
 
         # mirrors blinky's current position around the two tile offset
         target_x = int(pac_x) + (int(pac_x) - int(b_x))
