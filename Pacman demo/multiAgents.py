@@ -451,6 +451,7 @@ class CPSC481Agent(Agent):
     def getAction(self, gameState):
         # Collect legal moves and successor states
         legalMoves = gameState.getLegalActions()
+        legalMoves = gameState.getBetterPacmanActions()
 
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
@@ -472,11 +473,15 @@ class CPSC481Agent(Agent):
             ghostDistanceValue = self.ghostDistance(currentGameState, action)
             powerPelletValue = self.powerPellet(currentGameState, action)
             nearerToFoodValue = self.nearerToFood(currentGameState, action)
-            scoreDifferenceValue = self.scoreDifference(currentGameState, action)
+            # scoreDifferenceValue = self.scoreDifference(currentGameState, action)
             foodEatenValue = self.foodEaten(currentGameState, action)
-            scoreChangeValue = self.scoreChange(currentGameState, action)
+            # scoreChangeValue = self.scoreChange(currentGameState, action)
             didGameLoseValue = self.didGameLose(currentGameState, action)
-            nextFeatureValues = [ghostDistanceValue, powerPelletValue, nearerToFoodValue, scoreDifferenceValue, foodEatenValue, scoreChangeValue, didGameLoseValue]
+            ghostDistanceToNearestValue = self.ghostDistanceToNearest(currentGameState, action)
+            # nextFeatureValues = [ghostDistanceToNearestValue, ghostDistanceValue, powerPelletValue, nearerToFoodValue,
+            #                      scoreDifferenceValue, foodEatenValue, scoreChangeValue, didGameLoseValue]
+            nextFeatureValues = [ghostDistanceToNearestValue, ghostDistanceValue, powerPelletValue, nearerToFoodValue,
+                                 foodEatenValue]
 
             if len(currentGameState.explored) == 0:  # This is the first state of the game... set initial values.
                 __main__.__dict__['_featureValues'] = nextFeatureValues  # this may or may not ever happen...
@@ -487,14 +492,12 @@ class CPSC481Agent(Agent):
 
                     # Could be used to compare old qValues to new qValues to determine if the change was an upgrade
                     # TODO: Currently not used...
-                    newqValue = 0
+                    newqValue = oldqValue = 0
                     for index, nextFeatureValue in enumerate(nextFeatureValues):
                         newqValue += weights[index] * nextFeatureValue
-
-                    oldqValue = 0
-                    for index, currentFeatureValue in enumerate(currentFeatureValues):
-                        oldqValue += weights[index] * currentFeatureValue
-
+                        oldqValue += weights[index] * currentFeatureValues[index]
+                    # for index, currentFeatureValue in enumerate(currentFeatureValues):
+                    #     oldqValue += weights[index] * currentFeatureValue
                 else:
                     currentFeatureValues = nextFeatureValues  # condition occurs once. initialization happens below
 
@@ -511,11 +514,20 @@ class CPSC481Agent(Agent):
                 chosenIndex = random.choice(biggestDifferenceIndices)  # Pick randomly among the best
 
                 # Make a change to the weight responsible for the biggest difference in qValue
+                # This thing can be improved.... specifically to handle negatives when comparing things.
+                # if nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] > 0:
+                #     # if weights[chosenIndex] < .81:
+                #     weights[chosenIndex] += .1
+                # elif nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] < 0:
+                #     if weights[chosenIndex] >= .11:
+                #         weights[chosenIndex] -= .1
                 if nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] > 0:
                     weights[chosenIndex] += .1
-                elif nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] < 0:
-                    if weights[chosenIndex] >= .11:
-                        weights[chosenIndex] -= .1
+                # if nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] > 0:
+                #     if weights[chosenIndex] <= 1.9:
+                #         weights[chosenIndex] += .1
+                # if nextFeatureValues[chosenIndex] - currentFeatureValues[chosenIndex] > 0:
+                #     weights[chosenIndex] += .1
 
                 __main__.__dict__['_weights'] = weights
                 __main__.__dict__['_featureValues'] = nextFeatureValues
@@ -531,11 +543,15 @@ class CPSC481Agent(Agent):
         ghostDistanceValue = self.ghostDistance(currentGameState, action)
         powerPelletValue = self.powerPellet(currentGameState, action)
         nearerToFoodValue = self.nearerToFood(currentGameState, action)
-        scoreDifferenceValue = self.scoreDifference(currentGameState, action)
+        # scoreDifferenceValue = self.scoreDifference(currentGameState, action)
         foodEatenValue = self.foodEaten(currentGameState, action)
-        scoreChangeValue = self.scoreChange(currentGameState, action)
-        didGameLoseValue = self.didGameLose(currentGameState, action)
-        nextFeatureValues = [ghostDistanceValue, powerPelletValue, nearerToFoodValue, scoreDifferenceValue, foodEatenValue, scoreChangeValue, didGameLoseValue]
+        # scoreChangeValue = self.scoreChange(currentGameState, action)
+        # didGameLoseValue = self.didGameLose(currentGameState, action)
+        ghostDistanceToNearestValue = self.ghostDistanceToNearest(currentGameState, action)
+        # nextFeatureValues = [ghostDistanceToNearestValue, ghostDistanceValue, powerPelletValue, nearerToFoodValue, scoreDifferenceValue,
+        #                      foodEatenValue, scoreChangeValue, didGameLoseValue]
+        nextFeatureValues = [ghostDistanceToNearestValue, ghostDistanceValue, powerPelletValue, nearerToFoodValue,
+                             foodEatenValue]
 
         qValue = 0
         for index, nextFeatureValue in enumerate(nextFeatureValues):
@@ -548,16 +564,12 @@ class CPSC481Agent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         ghost_dist_diff = 0
         for index, newGhostState in enumerate(newGhostStates):
-            dist_from_ghost = manhattanDistance(newPos, newGhostState.getPosition())
-
             pacman_position = currentGameState.getPacmanPosition()
             ghost_position = currentGameState.getGhostStates()[index].getPosition()
             distance = manhattanDistance(ghost_position, pacman_position)
             ghost_position_next = newGhostState.getPosition()
             distance_next = manhattanDistance(ghost_position_next, newPos)
             if currentGameState.getGhostStates()[index].scaredTimer == 0:  # if the ghost is not scared...
-                if dist_from_ghost <= 1:
-                    return -1
                 if distance_next < distance:  # if the ghost is now closer to pacman...
                     ghost_dist_diff -= 1
                 elif distance_next > distance:
@@ -568,12 +580,31 @@ class CPSC481Agent(Agent):
                 elif distance_next > distance:
                     ghost_dist_diff -= 1
 
+        # return ghost_dist_diff
         if ghost_dist_diff < 0:
             return -1
-        elif ghost_dist_diff == 0:
-            return 0.5
-        else:
+        elif ghost_dist_diff >= 0:
             return 1
+
+    def ghostDistanceToNearest(self, currentGameState, action):
+        successorGameState = currentGameState.generatePacmanSuccessor(action)
+        ghost_distances = [manhattanDistance(currentGameState.getPacmanPosition(), ghost.getPosition())
+                           for index, ghost in enumerate(currentGameState.getGhostStates())]
+        closest_ghost = min(ghost_distances)
+
+        ghost_distances_next = [manhattanDistance(successorGameState.getPacmanPosition(), ghost.getPosition())
+                           for index, ghost in enumerate(successorGameState.getGhostStates())]
+        closest_ghost_next = min(ghost_distances_next)
+
+        if closest_ghost_next <= 1:
+            return -9999
+
+        if closest_ghost_next >= closest_ghost:
+            return 1
+        # elif closest_ghost_next == closest_ghost:
+        #     return 0.5
+        else: # closest_ghost_next < closest_ghost:
+            return -1
 
     def powerPellet(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
@@ -594,7 +625,7 @@ class CPSC481Agent(Agent):
         if successorDistanceToFood <= currentDistanceToFood:
             return 1
         elif successorDistanceToFood > currentDistanceToFood:
-            return 0.1
+            return -1
 
     def distanceToNearestFood(self, currentGameState):
         curPos = currentGameState.getPacmanPosition()
@@ -623,16 +654,16 @@ class CPSC481Agent(Agent):
         if currentGameState.data.score < successorGameState.data.score:
             return 1
         else:
-            return -1
+            return -0.5
 
     def foodEaten(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         successor_food_count = successorGameState.getNumFood()
         current_food_count = currentGameState.getNumFood()
         if (successor_food_count < current_food_count):
-            return 1.2
-        else:
-            return 0.9
+            return 1
+        else: # successor_food_count == current_food_count:
+            return 0.5
 
     def ghostHeadingTowardsMe(self, currentGameState, action):
         # TODO: Check whether or not a ghost I'm maybe moving closer to is headed in my direction..
@@ -640,10 +671,11 @@ class CPSC481Agent(Agent):
 
     def scoreChange(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)
-        if successorGameState.data.scoreChange > 0:
-            return 1
-        else:
-            return 0.5
+        return successorGameState.data.scoreChange
+        # if successorGameState.data.scoreChange > 0:
+        #     return 1
+        # else:
+        #     return -1
 
     def didGameLose(self, currentGameState, action):
         successorGameState = currentGameState.generatePacmanSuccessor(action)

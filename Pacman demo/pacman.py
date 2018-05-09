@@ -91,6 +91,18 @@ class GameState:
         else:
             return GhostRules.getLegalActions( self, agentIndex )
 
+    def getBetterPacmanActions( self, agentIndex=0 ):
+        """
+        Returns the legal actions for the agent specified.
+        """
+#        GameState.explored.add(self)
+        if self.isWin() or self.isLose(): return []
+
+        if agentIndex == 0:  # Pacman is moving
+            return PacmanRules.getBetterPacmanActions( self, agentIndex )
+        else:
+            return None
+
     def generateSuccessor( self, agentIndex, action):
         """
         Returns the successor state after the specified agent takes the action.
@@ -372,6 +384,23 @@ class PacmanRules:
             PacmanRules.consume( nearest, state )
     applyAction = staticmethod( applyAction )
 
+    def getBetterPacmanActions( state, ghostIndex ):
+        """
+        Ghosts cannot stop, and cannot turn around unless they
+        reach a dead end, but can turn 90 degrees at intersections.
+        """
+        # conf = state.getGhostState( ghostIndex ).configuration
+        conf = state.getPacmanState().configuration
+        # possibleActions = Actions.getPossibleActions( conf, state.data.layout.walls )
+        possibleActions = Actions.getBetterPacmanActions(conf, state.data.layout.walls)
+        reverse = Actions.reverseDirection( conf.direction )
+        if Directions.STOP in possibleActions:
+            possibleActions.remove( Directions.STOP )
+        if reverse in possibleActions and len( possibleActions ) > 1:
+            possibleActions.remove( reverse )
+        return possibleActions
+    getBetterPacmanActions = staticmethod( getBetterPacmanActions )
+
     def consume( position, state ):
         x,y = position
         # Eat food
@@ -495,7 +524,7 @@ def parseAgentArgs(str):
 ###############################################################################################
 def parseWeights(str):
     if str == None: return []
-    return [int(n) for n in str.split(',')]
+    return [float(n) for n in str.split(',')]
 ###############################################################################################
 
 
@@ -619,6 +648,7 @@ def readCommand( argv ):
             ghostType = loadAgent(options.ghost, noKeyboard)
             args['ghosts'] = [ghostType(i + 1) for i in range(options.numGhosts)]
 
+
     import __main__
     if options.drawPath:
         __main__.__dict__['_drawPath'] = True
@@ -730,7 +760,12 @@ def runGames( layout, pacman, ghosts, display, numGames, record, numTraining = 0
             game = rules.newReinforcementGame(layout, pacman, ghosts, gameDisplay, weights, beQuiet, catchExceptions)
             updatedWeights = game.run()  # decide whether updated weights should be within game.run() or elsewhere..
             sys.stdout.write('pacman.runGames() weights = ')
-            print updatedWeights
+            # print updatedWeights
+            for index, updatedWeight in enumerate(updatedWeights):
+                if index == len(updatedWeights) - 1:
+                    print updatedWeight
+                else:
+                    sys.stdout.write(str(updatedWeight) + ',')
             __main__.__dict__['_weights'] = updatedWeights
         else:
             game = rules.newGame( layout, pacman, ghosts, gameDisplay, beQuiet, catchExceptions)
