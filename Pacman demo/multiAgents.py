@@ -450,7 +450,7 @@ class CPSC481Agent(Agent):
 
     def getAction(self, gameState):
         # Collect legal moves and successor states
-        legalMoves = gameState.getLegalActions()
+        # legalMoves = gameState.getLegalActions()
         legalMoves = gameState.getBetterPacmanActions()
 
         # Choose one of the best actions
