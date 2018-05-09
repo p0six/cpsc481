@@ -116,7 +116,7 @@ class Blinky(GhostAgent):  # Blinky always targets PacMan's position
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
         if is_scared:
-            direction_list = mazeDirections(intpos, corners[3], state, self.index)
+            direction_list = []
         else:
             direction_list = mazeDirections(intpos, self.getTargetPosition(state), state, self.index)
 
@@ -171,7 +171,7 @@ class Pinky(GhostAgent):
             intpos = (int(math.floor(pos_x)), int(math.floor(pos_y)))
 
         if is_scared:
-            direction_list = mazeDirections(intpos, corners[2], state, self.index)
+            direction_list = []
         else:
             target_position = self.getTargetPosition(state)
             direction_list = mazeDirections(intpos, target_position, state, self.index)
