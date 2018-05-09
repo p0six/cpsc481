@@ -71,7 +71,7 @@ This file controls the creation of the game model. We have modified it to create
 appropriate AI modeled after the original PAC-MAN ghost behaviors, triggered using the "-o" command line argument.
 We added a flag -d to display the paths ghosts intended targets. Also, we made it so you can play against each on or 
 as many of the ghosts that you would like to play against being specified by their names like --blinky or --pinky. Lastly,
-we added --reinforcementLearning in with a set of 5 weights.
+we added --reinforcementLearning in with a set of 5 weights. Modified to support getBetterPacmanPosition().
 
 ####searchAgents.py
 Added a function that returns the set of directions from start location (x1,y1) to end location (x2, y2). 
@@ -82,15 +82,18 @@ This is converted by the ghost class into a series of cell coordinates represent
 Implemented the Euclidean distance equation to be used by our ghost AI search algorithms.
  We may or may not go forward with euclidean distance in our final version.
  
-####multiagents.py
+####multiAgents.py
 We added cpsc481 agent to drive the behavior of Pacman to deal with a set of weights which correspond to specific
 Qlearning features. These set of weights dynamically change the behavior of Pacmans decisions or turns based 
-on the location of the ghosts, food, power pellets, and more. 
+on the location of the ghosts, food, power pellets, and more.  PAC-MAN now uses getBetterPacmanActions() which
+removes the "Stop" direction as an option, making him seem more aggressive.
 
 ####game.py
+
 Modified to allow for the setting and the getting of weights which are being used in reinforcement learning. Essentially, 
 it was modified to verify that the weights are always kept on the game state. These changes are allow being made when the 
---reinforcementLearning command is being set or called in the terminal. 
+--reinforcementLearning command is being set or called in the terminal. Added a getBetterPacmanActions() function which
+removes his ability to stop, and makes him seem more aggressive.
 
 ####search.py 
 We created the A* search ghost function which is used for path finding 
