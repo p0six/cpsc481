@@ -30,18 +30,23 @@ Created commands that initialize our Ghosts in the game. This document contains 
  ghost implementations.
 
    *Trigger our Ghost Agents... Blinky / Pinky / Inky / Clyde, using the pacmanClassic map we created.*
+
    `python pacman.py -l pacmanClassic -o`
 
    *Allow PacMan to play against Blinky and draw Blinky's intended path....*
+
    `python pacman.py -l pacmanClassic --blinky  -z .5 -d -p CPSC481Agent`
 
    *PacMan play's against all four ghosts, not drawing intended paths.*
+
    `python pacman.py -l pacmanClassic -o -z .5 -p CPSC481Agent`
 
    *Provide some weights to start reinforcementLearning from... play 100 games quitely with CPSC481Agent against Blinky*
+
    `python pacman.py --blinky -p CPSC481Agent --reinforcementLearning 1,1,1,1,1,1,1  -l smallClassic -n 100 -q`
 
    *Watch a fairly intelligent PAC-MAN completely fail against all four of our ghosts*
+
    `python pacman.py -o -p CPSC481Agent --reinforcementLearning 1,1,1,1,1,1,1 -l pacmanClassic`   
 
 
