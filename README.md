@@ -108,3 +108,7 @@ Files Created
 ##pacmanClassic.lay
 This is a layout file built to match the classic PAC-MAN map. We created this as a way to make this version of PAC-MAN
 to feel more like the original.
+
+##pacmanClassicNoPowerPellets.lay 
+This is a layout file built to match the classic PAC-MAN map, with the power pellets removed. This was used while testing values for our CPSC481Agent’s reinforcement learning algorithm. At one point, we needed the ghosts to stop being frightened so we could tune PAC-MAN’s behavior to better evade the ghosts.
+
