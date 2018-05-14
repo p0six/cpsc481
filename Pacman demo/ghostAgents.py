@@ -173,12 +173,14 @@ class Pinky(GhostAgent):
         if is_scared:
             direction_list = []
         else:
-            target_position = self.getTargetPosition(state)
-            direction_list = mazeDirections(intpos, target_position, state, self.index)
+            direction_list = mazeDirections(intpos, self.getTargetPosition(state), state, self.index)
 
         dist = util.Counter()
         if (float(pos_x)).is_integer() is False or (float(pos_y)).is_integer() is False:
-            dist[ghost_direction] = 1  # If Ghost is in between tiles, continue previous direction
+            if ghost_direction in state.getLegalActions(self.index):
+                dist[ghost_direction] = 1  # If Ghost is in between tiles, continue previous direction #TODO: is this fixed?
+            else:
+                dist[state.getLegalActions(self.index)[0]] = 1
         else:
             if len(direction_list) == 0:
                 dist[state.getLegalActions(self.index)[0]] = 1
@@ -222,6 +224,7 @@ class Pinky(GhostAgent):
         return pac_x, pac_y
 
         # Illegal ghost action East, ghostDirection: West, ghostIndex: 2, ghostPosition: (10.0, 5.0), pacmanPosition: (15, 5), pacmanDirection: West
+        # Exception: Illegal ghost action East, ghostDirection: West, ghostIndex: 2, ghostPosition: (4.0, 16.0), pacmanPosition: (2, 16), pacmanDirection: East
         # for i in reversed(range(5)):
         #     if pacman_direction == 'North' and (pac_y+i < walls.height and not walls[pac_x][pac_y+i]):
         #         return pac_x, int(math.ceil(pac_y+i))

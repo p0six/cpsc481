@@ -386,8 +386,12 @@ def aStarSearchGhost(problem, gameState, ghostIndex, heuristic=nullHeuristic):
                     ######################################################################
                     # CPSC 481 - make cost of illegal move very high so it's never chosen
                     ######################################################################
+                    # instead of prior_node == start_state, we could do a check if location
+                    # of prior state is within a given range of current state
                     if future_action == reverse_direction and prior_node == start_state:
+                        # this could return an invalid direction after moving .5 while scared?
                         future_cost = 99999999999999
+
                     else:
                         future_cost = future_nodes[2];
                     ################################################################################

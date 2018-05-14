@@ -44,6 +44,9 @@ python pacman.py --blinky -p CPSC481Agent --reinforcementLearning 1,1,1,1,1,1,1 
 
 # Watch a fairly intelligent PAC-MAN completely fail against all four of our ghosts
 python pacman.py -o -p CPSC481Agent --reinforcementLearning 1,1,1,1,1,1,1 -l pacmanClassic
+python pacman.py -o -p CPSC481Agent -l pacmanClassic --reinforcementLearning 9.0,10.5,1.0,18.7,7.4,1.0,1.0 -n 10
+
+# Consider adding a feature for if PAC-MAN was just recently in the prior tile to de-value repetition / looping.
 ########################################################################################################################
 # MacOS: Python 2.7.15rc1 corrects a performance bug, and bug where game window does not open directly to foreground
 /Library/Frameworks/Python.framework/Versions/2.7/bin/python pacman.py -z .5 -l pacmanClassic --blinky -d
